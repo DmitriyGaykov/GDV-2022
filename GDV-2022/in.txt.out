@@ -1,0 +1,47 @@
+a is num = 5;
+b is symb = 'a';
+
+And is foo(a is num, b is num) is num
+{
+	a > b ?
+	Truth 
+	{
+		{
+			a is num = a | b;
+			a = a | a;
+		}
+	}
+	return a & b;
+}
+
+main
+{
+	c is num = a;
+	a = ~a & c;
+	d is symb = 'g';
+	d = d | b;
+
+	a = And(a, c);
+	
+	d > b ?
+	Truth
+	{
+		a = a | c & (a & c);
+	}
+	Lie
+	{
+		a = c;
+
+		a == c ?
+		Truth
+		{
+			a = c | c;
+		}
+	}
+
+	a is num ? 
+	Truth
+	{
+		a = And(a, a);
+	}
+}

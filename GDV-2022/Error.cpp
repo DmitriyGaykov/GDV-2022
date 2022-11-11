@@ -40,9 +40,8 @@ namespace Error
 		ERROR_ENTRY(604, "При инициализации функции не хватает закрывающей скобки ')'"),
 		ERROR_ENTRY(605, "При инициализации функции не указан тип возвращаемого значения"),
 		ERROR_ENTRY(606, "Ошибка. Повторная инициализация переменной!"),
-		ERROR_ENTRY(607, "Неопределенная ошибка!"),
-		ERROR_ENTRY(608, "Неопределенная ошибка!"),
-		ERROR_ENTRY(609, "Неопределенная ошибка!"),
+		ERROR_ENTRY(607, "Ошибка при присвоении значения. Левый аргумент операции присваивания должен быть идентификатором!"),
+		ERROR_ENTRY(608, "Невозможно определить тип переменной, инициализированной неявно!"),
 		ERROR_ENTRY_NODEF10(610),ERROR_ENTRY_NODEF10(620),ERROR_ENTRY_NODEF10(630),ERROR_ENTRY_NODEF10(640),ERROR_ENTRY_NODEF10(650),ERROR_ENTRY_NODEF10(660),ERROR_ENTRY_NODEF10(670),ERROR_ENTRY_NODEF10(680),ERROR_ENTRY_NODEF10(690),
 		ERROR_ENTRY_NODEF100(700),ERROR_ENTRY_NODEF100(800),ERROR_ENTRY_NODEF100(900)
 	};

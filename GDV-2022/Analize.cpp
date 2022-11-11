@@ -19,7 +19,8 @@ bool isId(string word); // проверяет слово, является ли 
 bool is_id_in_table( // проверяет, есть ли идентификатор в таблице идентификаторов
 	IT::IdTable& idtable, // таблица идентификаторов
 	string word, // слово, которое нужно проверить
-	stack<string> scope); // стек областей видимости
+	stack<string> scope,
+	string* fullWord = nullptr); // стек областей видимости
 
 bool is_id_in_this_scope( // проверить переменную в данной области видимости
 	IT::IdTable& idtable, // таблица идентификаторов
@@ -42,6 +43,7 @@ void LexAnalize(
 	string word = "";
 	int line = 1;
 	char symb;
+	bool isComment = false;
 	
 	for (int i = 0; i < strlen(text); i++)
 	{
@@ -49,68 +51,94 @@ void LexAnalize(
 		
 		if (symb == '\n')
 		{
-			line++;
+			isComment = false;
 		}
-		
-		if (isStopSymbol(symb))
+
+		if (!isComment)
 		{
-			if (
-				word != "" &&
-				word != " " &&
-				word != "\t" 
+			if (symb == '*')
+			{
+				isComment = true;
+				continue;
+			}
+		
+			if (symb == '\n')
+			{
+				line++;
+			}
+
+			if (isStopSymbol(symb))
+			{
+				if (
+					word != "" &&
+					word != " " &&
+					word != "\t"
 #if !defined(BLOCK_SLASH_N)
-				&& word != "\n"
+					&& word != "\n"
 #endif
-				)
-			{
-				words.push_back(word);
-				word = "";
-			}
-
-			if (
-				symb == '=' &&
-				text[i + 1] == '='
-				)
-			{
-				word += symb;
-				word += text[i + 1];
-
-				i++;
-				
-				words.push_back(word);
-			}
-			else if (symb == '\'')
-			{
-				if (text[i + 2] != '\'')
+					)
 				{
-					throw ERROR_THROW_IN(600, line, 0);
+					words.push_back(word);
+					word = "";
 				}
 
-				word += symb;
-				word += text[i + 1];
-				word += text[i + 2];
+				if (
+					symb == '=' &&
+					text[i + 1] == '='
+					)
+				{
+					word += symb;
+					word += text[i + 1];
 
-				i += 2;
-				
-				words.push_back(word);
-			}
-			else if (
-				symb != ' ' &&
-				symb != '\t' 
+					i++;
+
+					words.push_back(word);
+				}
+				else if (
+					symb == '=' &&
+					text[i + 1] == '>'
+					)
+				{
+					word += symb;
+					word += text[i + 1];
+					
+					i++;
+
+					words.push_back(word);
+				}
+				else if (symb == '\'')
+				{
+					if (text[i + 2] != '\'')
+					{
+						throw ERROR_THROW_IN(600, line, 0);
+					}
+
+					word += symb;
+					word += text[i + 1];
+					word += text[i + 2];
+
+					i += 2;
+
+					words.push_back(word);
+				}
+				else if (
+					symb != ' ' &&
+					symb != '\t'
 #if !defined(BLOCK_SLASH_N)
-				&& symb!= "\n"
+					&& symb != "\n"
 #endif
-				)
+					)
+				{
+					word += symb;
+					words.push_back(word);
+				}
+
+				word = "";
+			}
+			else
 			{
 				word += symb;
-				words.push_back(word);
 			}
-			
-			word = "";
-		}
-		else
-		{
-			word += symb;
 		}
 	}
 
@@ -128,9 +156,14 @@ void setLexemsAndIds(
 	LT::Entry lexe;
 	IT::Entry* ide;
 	ushort line = 1;
+	
+	string* fullWord = new string;
 
 	stack<string> scope;
 	stack<string> tempScope;
+	IT::Entry* tempId;
+	
+	bool* willBeTrue = nullptr;
 
 	int index;
 	int indexOfScope = 0;
@@ -142,6 +175,73 @@ void setLexemsAndIds(
 	for (int i = 0; i < words.size(); i++)
 	{
 		word = words[i];
+
+		if (
+			i + 1 < words.size() &&
+			words[i + 1] == "=>")
+		{
+			*fullWord = words[i + 2];
+			words[i + 1] = "is";
+			
+			if (isLiteral(*fullWord))
+			{
+				if (fullWord->c_str()[0] == '\'')
+				{
+					words.insert(words.begin() + i + 2, "symb");
+				}
+				else
+				{
+					words.insert(words.begin() + i + 2, "num");
+				}
+			}
+			else if (is_id_in_table(idtable, *fullWord, scope, fullWord))
+			{
+				index = IT::IsId(idtable, (char*)fullWord->c_str());
+				
+				tempId = new IT::Entry();
+				
+				*tempId = IT::GetEntry(idtable, index);
+				
+				if (tempId->iddatatype == IT::NUM)
+				{
+					words.insert(words.begin() + i + 2, "num");
+				}
+				else
+				{
+					words.insert(words.begin() + i + 2, "symb");
+				}
+				
+				delete tempId;
+			}
+			else if (
+				*fullWord == "~" && 
+				is_id_in_table(idtable, words[i + 3], scope, fullWord)
+				)
+			{
+				index = IT::IsId(idtable, (char*)fullWord->c_str());
+
+				tempId = new IT::Entry();
+
+				*tempId = IT::GetEntry(idtable, index);
+
+				if (tempId->iddatatype == IT::NUM)
+				{
+					words.insert(words.begin() + i + 2, "num");
+				}
+				else
+				{
+					words.insert(words.begin() + i + 2, "symb");
+				}
+
+				delete tempId;
+			}
+			else
+			{
+				throw ERROR_THROW_IN(608, line, 0);
+			}
+			
+			words.insert(words.begin() + i + 3, "=");
+		}
 
 		if (word == "is")
 		{
@@ -192,6 +292,28 @@ void setLexemsAndIds(
 			LT::Add(lextable, lexe);
 
 			//////////////////////////////
+
+			if (words[i - 1] == "num" || words[i - 1] == "symb")
+			{
+				fullWord = &words[i - 3];
+			}
+			else if (isId(words[i - 1]))
+			{
+				fullWord = &words[i - 1];
+			}
+			else
+			{
+				throw ERROR_THROW_IN(607, line, 0);
+			}
+
+			if (!is_id_in_table(idtable, *fullWord, scope, fullWord))
+			{
+				throw ERROR_THROW_IN(602, line, 0);
+			}
+			
+			index = IT::IsId(idtable, (char*)fullWord->c_str());
+			
+			willBeTrue = &idtable.table[index].hasValue;
 		}
 
 		else if (word == ";")
@@ -201,6 +323,12 @@ void setLexemsAndIds(
 			lexe.sn = line;
 
 			LT::Add(lextable, lexe);
+
+			if(willBeTrue != nullptr)
+			{
+				*willBeTrue = true;
+				willBeTrue = nullptr;
+			}
 		}
 
 		else if (word == "foo")
@@ -356,7 +484,7 @@ void setLexemsAndIds(
 
 		else if (isId(word))
 		{
-			lexe.idxTI = -1;
+			lexe.idxTI = idtable.size;
 			lexe.lexema = 'i';
 			lexe.sn = line;
 
@@ -382,11 +510,9 @@ void setLexemsAndIds(
 				{
 				case 'n':
 					ide->iddatatype = IT::NUM;
-					ide->idtype = IT::V;
 					break;
 				case 's':
 					ide->iddatatype = IT::SYMB;
-					ide->idtype = IT::V;
 					break;
 				case 'f':
 					ide->idtype = IT::F;
@@ -427,6 +553,24 @@ void setLexemsAndIds(
 					
 					break;
 				}
+				
+				if (
+					ide->idtype != IT::F &&
+					i > 0 &&
+					(words[i - 1] == "," || words[i - 1] == "(") &&
+					words[i + 1] == "is")
+				{
+					ide->idtype = IT::P;
+				}
+				else if(ide->idtype != IT::F)
+				{
+					ide->idtype = IT::V;
+				}
+				
+				if (ide->idtype == IT::P)
+				{
+					ide->hasValue = true;
+				}
 
 				IT::Add(idtable, *ide);
 
@@ -444,6 +588,29 @@ void setLexemsAndIds(
 				)
 			{
 				throw ERROR_THROW_IN(606, line, 0);
+			}
+			else if (is_id_in_table(idtable, word, scope, fullWord))
+			{
+				ide = new IT::Entry();
+				
+				index = IT::IsId(idtable, (char*)fullWord->c_str());
+
+				*ide = IT::GetEntry(idtable, index);
+
+				if (
+					!ide->hasValue &&
+					words[i + 1] != "=" && 
+					ide->idtype != IT::F && 
+					words[i + 1] != "=>")
+				{
+					throw ERROR_THROW_IN(602, line, 0);
+				}
+
+				ide->idxfirstLE = lextable.size - 1;
+
+				IT::Add(idtable, *ide);
+		
+				delete ide;
 			}
 		}
 
@@ -507,7 +674,8 @@ bool isId(string word)
 bool is_id_in_table(
 	IT::IdTable& idtable,
 	string word,
-	stack<string> scope)
+	stack<string> scope,
+	string* fullWord)
 {
 	string temp = word;
 	int index;
@@ -533,6 +701,11 @@ bool is_id_in_table(
 		}
 		else
 		{
+			if (fullWord != nullptr)
+			{
+				*fullWord = temp;
+			}
+			
 			return true;
 		}
 	}

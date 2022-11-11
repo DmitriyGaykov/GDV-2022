@@ -29,6 +29,7 @@ namespace IT
 		char id[ID_MAXSIZE]; // идентификатор
 		IDDATATYPE iddatatype; // тип данных идентификатора
 		IDTYPE idtype; // тип идентификатора
+		bool hasValue;
 
 		union
 		{
@@ -37,6 +38,11 @@ namespace IT
 			char vsymb; // значение типа symb
 
 		} value;
+
+		Entry()
+		{
+			hasValue = false;
+		}
 	};
 
 	struct IdTable // экземпляр таблицы идентификаторов

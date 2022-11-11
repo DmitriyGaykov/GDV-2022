@@ -15,18 +15,20 @@ int main(int argc, _TCHAR* argv[])
 		IT::IdTable idtable = IT::Create(in.size); // создание таблицы идентификаторов
 		
 		LexAnalize(in, lextable, idtable);
-
+		
 		for (int i = 0; i < lextable.size; i++)
 		{
 			cout << lextable.table[i].lexema;
 		}
+
+		/*
 
 		cout << endl << endl << endl;
 
 		for (int i = 0; i < idtable.size; i++)
 		{
 			cout << idtable.table[i].id << endl;
-		}
+		}*/
 
 
 		//	Log::WriteLine(log, (wchar_t*)L"Текст:", (wchar_t*)L" без ошибок\n", (wchar_t*)L""); // запись в лог об ошибке

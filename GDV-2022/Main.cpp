@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "MFST.h"
 
 int main(int argc, _TCHAR* argv[])
 {
@@ -9,17 +10,20 @@ int main(int argc, _TCHAR* argv[])
 	{
 		parm = Parm::getparm(argc, argv); // получение параметров
 		log = Log::getlog(parm.log); // получение лога
-		In::IN in = In::getin(parm.in); // получение входных данных
+		auto in = In::getin(parm.in); // получение входных данных
 
 		LT::LexTable lextable = LT::Create(in.size); // создание таблицы лексем
 		IT::IdTable idtable = IT::Create(in.size); // создание таблицы идентификаторов
 		
 		LexAnalize(in, lextable, idtable);
 		
-		for (int i = 0; i < lextable.size; i++)
-		{
-			cout << lextable.table[i].lexema;
-		}
+		
+
+		MFST_TRACE_START
+			MFST::Mfst mfst(lextable, GRB::getGreibach());
+		mfst.start();
+		mfst.savededucation();
+		mfst.printrules();
 
 		/*
 

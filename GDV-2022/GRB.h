@@ -1,5 +1,4 @@
 #pragma once
-
 #include "stdafx.h"
 typedef short GRBALPHABET; // символы алфавита грамматики, терминалы > 0, нетерминалы < 0
 
@@ -22,6 +21,8 @@ namespace GRB
 				...
 			);
 
+			Chain() {}
+
 			char* getCChain(char* b); // получить правую сторону правила
 			
 			static GRBALPHABET T(char t) // терминал
@@ -31,7 +32,7 @@ namespace GRB
 
 			static GRBALPHABET N(char n) // нетерминал
 			{
-				return -GRBALPHABET(n);
+				return -1 * GRBALPHABET(n);
 			}
 
 			static bool isT(GRBALPHABET s) // терминал?

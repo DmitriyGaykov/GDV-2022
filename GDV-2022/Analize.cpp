@@ -213,28 +213,6 @@ void setLexemsAndIds(
 				
 				delete tempId;
 			}
-			else if (
-				*fullWord == "~" && 
-				is_id_in_table(idtable, words[i + 3], scope, fullWord)
-				)
-			{
-				index = IT::IsId(idtable, (char*)fullWord->c_str());
-
-				tempId = new IT::Entry();
-
-				*tempId = IT::GetEntry(idtable, index);
-
-				if (tempId->iddatatype == IT::NUM)
-				{
-					words.insert(words.begin() + i + 2, "num");
-				}
-				else
-				{
-					words.insert(words.begin() + i + 2, "symb");
-				}
-
-				delete tempId;
-			}
 			else
 			{
 				throw ERROR_THROW_IN(608, line, 0);
@@ -257,11 +235,11 @@ void setLexemsAndIds(
 			line++;
 			if (words[i - 1] != "\n")
 			{
-				lexe.idxTI = -1;
+				/*lexe.idxTI = -1;
 				lexe.lexema = '\n';
 				lexe.sn = line;
 
-				LT::Add(lextable, lexe);
+				LT::Add(lextable, lexe);*/
 			}
 		}
 
@@ -329,6 +307,15 @@ void setLexemsAndIds(
 				*willBeTrue = true;
 				willBeTrue = nullptr;
 			}
+		}
+
+		else if (word == "console")
+		{
+			lexe.idxTI = -1;
+			lexe.lexema = 'c';
+			lexe.sn = line;
+
+			LT::Add(lextable, lexe);
 		}
 
 		else if (word == "foo")

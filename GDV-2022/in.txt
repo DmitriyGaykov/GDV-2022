@@ -1,29 +1,20 @@
-a is num = 56;
-b is symb = 'a';
-
 And is foo(a is num, b is num) is num
 {	
-	a > b ?
-	Truth 
-	{
-		{
-			a is num = b;
-			a = a | a;
-		}
-	}
-	
-	return a & b;
+	return And(a , b);
 }
+a is num = And();
+b is symb = 'a' & 'a';
+
 
 main
 {
-	result => And(a, a);
+	result => And(a, a); 
 	c is num = 602;
 	a = ~a & c;
 	d is symb = 'g';
 	d = d | b;
 
-	a = And(a, c); *сделать проверку на тип параметра
+	a = And(a & , c); *сделать проверку на тип параметра
 	
 	d > b ?
 	Truth
@@ -46,4 +37,8 @@ main
 	{
 		a = And(a, a);
 	}
+
+	console(a);
+	
+	return 0;
 }

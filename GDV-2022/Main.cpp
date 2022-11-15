@@ -17,6 +17,10 @@ int main(int argc, _TCHAR* argv[])
 		
 		LexAnalize(in, lextable, idtable);
 		
+		for (int i = 0; i < lextable.size; i++)
+		{
+			cout << lextable.table[i].lexema;
+		}
 		
 
 		MFST_TRACE_START

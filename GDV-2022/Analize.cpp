@@ -51,7 +51,15 @@ void LexAnalize(
 		
 		if (symb == '\n')
 		{
-			isComment = false;
+			line++;
+			
+			
+			if (isComment)
+			{
+				words.push_back("\n");
+				isComment = false;
+				continue;
+			}
 		}
 
 		if (!isComment)
@@ -60,11 +68,6 @@ void LexAnalize(
 			{
 				isComment = true;
 				continue;
-			}
-		
-			if (symb == '\n')
-			{
-				line++;
 			}
 
 			if (isStopSymbol(symb))
@@ -141,8 +144,8 @@ void LexAnalize(
 			}
 		}
 	}
-
-	//for (auto i : words) cout << i << endl;
+	
+	// for (auto i : words) cout << i << endl;
 	
 	setLexemsAndIds(words, lextable, idtable);
 }
@@ -530,7 +533,7 @@ void setLexemsAndIds(
 						}
 						else
 						{
-							throw ERROR_THROW_IN(605, line, i);
+							throw ERROR_THROW_IN(605, line, 0);
 						}
 					}
 					else
@@ -565,7 +568,7 @@ void setLexemsAndIds(
 			}	
 			else if (!is_id_in_table(idtable, word, scope))
 			{
-				throw ERROR_THROW_IN(602, line, 0);
+				throw ERROR_THROW_IN(609, line, 0);
 			}
 			else if (
 				words[i + 1] == "is" &&
@@ -584,14 +587,14 @@ void setLexemsAndIds(
 
 				*ide = IT::GetEntry(idtable, index);
 
-				if (
+				/*if (
 					!ide->hasValue &&
 					words[i + 1] != "=" && 
 					ide->idtype != IT::F && 
 					words[i + 1] != "=>")
 				{
 					throw ERROR_THROW_IN(602, line, 0);
-				}
+				}*/
 
 				ide->idxfirstLE = lextable.size - 1;
 

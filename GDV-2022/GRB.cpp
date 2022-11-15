@@ -1,4 +1,4 @@
-#include "GRB.h"
+п»ї#include "GRB.h"
 
 namespace GRB
 {
@@ -11,17 +11,18 @@ namespace GRB
 #define TYPES_VALUES 'G'
 #define IF 'J'
 	
+	
 	GRB::Greibach greibach(
 		NS('S'),
 		TS('$'),
 		12, // edit
 		
 		
-		Rule(NS('S'), GRB_ERROR_SERIES + 0, // глобальное пространство
+		Rule(NS('S'), GRB_ERROR_SERIES + 0, // РіР»РѕР±Р°Р»СЊРЅРѕРµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ
 			10,
 
-			Rule::Chain(7, TS('i'), TS('s'), TS('t'), TS('='), NS('E'), TS(';'), NS('S')),
-			Rule::Chain(6, TS('i'), TS('s'), TS('t'), TS('='), NS('E'), TS(';')),
+			Rule::Chain(7, TS('i'), TS('s'), TS('t'), TS('='), NS('N'), TS(';'), NS('S')),
+			Rule::Chain(6, TS('i'), TS('s'), TS('t'), TS('='), NS('N'), TS(';')),
 			
 			Rule::Chain(5, TS('i'), TS('s'), TS('t'), TS(';'), NS('S')),
 			Rule::Chain(4, TS('i'), TS('s'), TS('t'), TS(';')),
@@ -36,47 +37,55 @@ namespace GRB
 			Rule::Chain(4, TS('m'), TS('{'), NS('B'), TS('}'))
 		),
 
-		Rule(NS('E'), GRB_ERROR_SERIES + 1, // выражение
-			1,
-			Rule::Chain(1, NS('G'))
+		Rule(NS('N'), GRB_ERROR_SERIES + 1, // РІС‹СЂР°Р¶РµРЅРёРµ
+			3,
+
+			Rule::Chain(2, TS('~'), NS('N')),
+			Rule::Chain(3, NS(TYPES_VALUES), TS('v'), NS('N')),
+			
+		
+			Rule::Chain(1, NS(TYPES_VALUES))
+			/*Rule::Chain(3, NS(TYPES_VALUES), TS('v'), NS((char)69)),
+			Rule::Chain(1, NS(TYPES_VALUES)),
+			Rule::Chain(2, TS('~'), NS((char)69))*/
 		),
 
-		Rule(NS('P'), GRB_ERROR_SERIES + 2, // параметры
+		Rule(NS('P'), GRB_ERROR_SERIES + 2, // РїР°СЂР°РјРµС‚СЂС‹
 			2,
 			Rule::Chain(2, TS('('), TS(')')),
 			Rule::Chain(3, TS('('), NS('I'), TS(')'))
 		),
 
-		Rule(NS('I'), GRB_ERROR_SERIES + 3, // инициализация параметров
+		Rule(NS('I'), GRB_ERROR_SERIES + 3, // РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїР°СЂР°РјРµС‚СЂРѕРІ
 			2,
 			Rule::Chain(3, TS('i'), TS('s'), TS('t')),
 			Rule::Chain(5, TS('i'), TS('s'), TS('t'), TS(','), NS('I'))
 		),
 
-		Rule(NS('F'), GRB_ERROR_SERIES + 4, // вызов функции
+		Rule(NS('F'), GRB_ERROR_SERIES + 4, // РІС‹Р·РѕРІ С„СѓРЅРєС†РёРё
 			2,
 			Rule::Chain(3, TS('i'), TS('('), TS(')')),
 			Rule::Chain(4, TS('i'), TS('('), NS('A'), TS(')'))
 		),
 
-		Rule(NS('A'), GRB_ERROR_SERIES + 5, // параметры вызываемой функции
+		Rule(NS('A'), GRB_ERROR_SERIES + 5, // РїР°СЂР°РјРµС‚СЂС‹ РІС‹Р·С‹РІР°РµРјРѕР№ С„СѓРЅРєС†РёРё
 			6,
 			Rule::Chain(1, TS('i')),
 			Rule::Chain(1, TS('l')),
 			Rule::Chain(1, NS('F')),
 
-			Rule::Chain(2, NS('E'), NS('A')),
-			Rule::Chain(2, NS('E'), NS('A')),
-			Rule::Chain(2, NS('E'), NS('A'))
+			Rule::Chain(2, NS('N'), NS('A')),
+			Rule::Chain(2, NS('N'), NS('A')),
+			Rule::Chain(2, NS('N'), NS('A'))
 		),
 
-		Rule(NS('B'), GRB_ERROR_SERIES + 6, // тело функции
+		Rule(NS('B'), GRB_ERROR_SERIES + 6, // С‚РµР»Рѕ С„СѓРЅРєС†РёРё
 			9,
 			Rule::Chain(3, NS(INIT), TS(';'), NS('B')),
 			Rule::Chain(3, NS(INIT), TS(';'), NS('R')),
 			
-			Rule::Chain(5, NS(INIT), TS('='), NS('E'), TS(';'), NS('B')),
-			Rule::Chain(5, NS(INIT), TS('='), NS('E'), TS(';'), NS('R')),
+			Rule::Chain(5, NS(INIT), TS('='), NS('N'), TS(';'), NS('B')),
+			Rule::Chain(5, NS(INIT), TS('='), NS('N'), TS(';'), NS('R')),
 			
 			Rule::Chain(2, NS(IF), NS('B')),
 			Rule::Chain(2, NS(IF), NS('R')),
@@ -87,12 +96,12 @@ namespace GRB
 			Rule::Chain(1, NS('R'))
 		),
 
-		Rule(NS(INIT), GRB_ERROR_SERIES + 7, // инициализация переменных
+		Rule(NS(INIT), GRB_ERROR_SERIES + 7, // РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїРµСЂРµРјРµРЅРЅС‹С…
 			1,
 			Rule::Chain(3, TS('i'), TS('s'), TS('t'))
 			),
 		
-		Rule(NS(IF), GRB_ERROR_SERIES + 8, // условие
+		Rule(NS(IF), GRB_ERROR_SERIES + 8, // СѓСЃР»РѕРІРёРµ
 			1,
 			Rule::Chain(5, NS(TYPES_VALUES), TS('V'), NS(TYPES_VALUES), TS('?'), NS(IFBODY))
 			),
@@ -102,15 +111,15 @@ namespace GRB
 			Rule::Chain(3, TS('R'), NS(TYPES_VALUES), TS(';'))
 		),
 			
-		Rule(NS(TYPES_VALUES), GRB_ERROR_SERIES + 10, // типы значений
+		Rule(NS('G'), GRB_ERROR_SERIES + 10, // С‚РёРїС‹ Р·РЅР°С‡РµРЅРёР№
 			4,
 			Rule::Chain(1, TS('i')),
 			Rule::Chain(1, TS('l')),
 			Rule::Chain(1, NS('F')),
-			Rule::Chain(1, NS('E'))
+			Rule::Chain(1, NS('N'))
 		),
 				
-		Rule(NS(IFBODY), GRB_ERROR_SERIES + 11, // тело if
+		Rule(NS(IFBODY), GRB_ERROR_SERIES + 11, // С‚РµР»Рѕ if
 			3,
 			Rule::Chain(4, TS('T'), TS('{'), NS('B'), TS('}')),
 			Rule::Chain(8, TS('T'), TS('{'), NS('B'), TS('}'), TS('L'), TS('{'), NS('B'), TS('}')),

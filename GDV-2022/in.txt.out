@@ -1,10 +1,10 @@
-And is foo(a is num, b is num) is num
-{	
-	return And(a , b);
-}
-a is num = And();
-b is symb = 'a' & 'a';
+b is num = 5 & 2;
+a is num;
 
+And is foo(a is num, b is num) is num
+{
+	return a & b;
+}
 
 main
 {
@@ -39,6 +39,5 @@ main
 	}
 
 	console(a);
-	
-	return 0;
-}
+	return a;
+}	

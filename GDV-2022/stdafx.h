@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <string>
 #include <stack>
+#include <map>
 
 using namespace std;
 
@@ -24,3 +25,4 @@ typedef unsigned short ushort;
 #include "LT.h"
 #include "IT.h"
 #include "Analize.h"
+#include "Polish.h"

@@ -67,4 +67,20 @@ namespace IT
 		idtable.size = 0;
 		idtable.maxsize = 0;
 	}
+
+	int GetIndexByLTIndex(IdTable& idtable, int index)
+	{
+		int ind = -1;
+
+		for (int i = 0; i < idtable.size; i++)
+		{
+			if (idtable.table[i].idxfirstLE == index)
+			{
+				ind = i;
+				break;
+			}
+		}
+
+		return ind;
+	}
 }

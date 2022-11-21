@@ -70,4 +70,8 @@ namespace IT
 	);
 
 	void Delete(IdTable& idtable); // удаление таблицы идентификаторов
+
+	int GetIndexByLTIndex( // найти индекс элемента в таблице идентификаторов по индексу в таблице лексем
+		IdTable& idtable, // таблица идентификаторов
+		int index); // индекс в таблице лексем
 }

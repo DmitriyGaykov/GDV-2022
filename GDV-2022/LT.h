@@ -27,8 +27,14 @@ namespace LT // таблица лексем
 	struct Entry
 	{
 		char lexema; // лексема
+		char view; // вид лексемы
 		int sn; // номер строки
 		int idxTI; // индекс в таблице идентификаторов
+
+		Entry()
+		{
+			view = 0;
+		}
 	};
 
 	struct LexTable

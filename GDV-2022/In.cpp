@@ -32,6 +32,11 @@ namespace In
 		this->code[(unsigned int)'~'] = IN::T;
 		this->code[(unsigned int)'*'] = IN::T;
 		this->code[(unsigned int)'_'] = IN::T;
+		this->code[(unsigned int)'-'] = IN::T;
+		this->code[(unsigned int)'.'] = IN::T;
+		this->code[(unsigned int)':'] = IN::T;
+		this->code[(unsigned int)'%'] = IN::T;
+		this->code[(unsigned int)'!'] = IN::T;
 	}
 
 	IN getin(wchar_t infile[]) // Функция проверки входных данных

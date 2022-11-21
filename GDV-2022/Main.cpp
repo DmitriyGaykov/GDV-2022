@@ -4,6 +4,7 @@
 int main(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "ru");
+	
 	Log::LOG log = Log::INITLOG; // инициализация лога
 	Parm::PARM parm; // инициализация параметров
 	try
@@ -17,10 +18,14 @@ int main(int argc, _TCHAR* argv[])
 		
 		LexAnalize(in, lextable, idtable);
 		
+		cout << endl;
+
 		for (int i = 0; i < lextable.size; i++)
 		{
 			cout << lextable.table[i].lexema;
 		}
+
+		cout << endl;
 		
 
 		MFST_TRACE_START
@@ -29,18 +34,16 @@ int main(int argc, _TCHAR* argv[])
 		mfst.savededucation();
 		mfst.printrules();
 
-		/*
+		cout << endl << endl;
 
-		cout << endl << endl << endl;
+		PN::Polish(lextable, idtable);
 
-		for (int i = 0; i < idtable.size; i++)
+		cout << endl << endl;
+
+		for (int i = 0; i < lextable.size; i++)
 		{
-			cout << idtable.table[i].id << endl;
-		}*/
-
-
-		//	Log::WriteLine(log, (wchar_t*)L"Текст:", (wchar_t*)L" без ошибок\n", (wchar_t*)L""); // запись в лог об ошибке
-		//	Log::WriteLine(log, (char*)"Текст: ", (char*)" без ошибок\n", (char*)""); // запись в лог об ошибке
+			cout <<  lextable.table[i].lexema;
+		}
 
 		Log::WriteLog(log); // запись в лог
 

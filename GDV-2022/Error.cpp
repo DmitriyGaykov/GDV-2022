@@ -57,7 +57,7 @@ namespace Error
 		
 		ERROR_ENTRY(660, "Ошибка в при использовании все возможных типов значений"),
 		ERROR_ENTRY(661, "Ошибка в теле условного оператора"),
-		ERROR_ENTRY_NODEF(662),
+		ERROR_ENTRY(662, "Ошибка при вызове оператора console(). Неверный синтаксис. console(Значение);"),
 		ERROR_ENTRY_NODEF(663),
 		ERROR_ENTRY_NODEF(664),
 		ERROR_ENTRY_NODEF(665),

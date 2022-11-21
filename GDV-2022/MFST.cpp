@@ -5,11 +5,11 @@
 
 namespace MFST
 {
-#define MFST_TRACE_START std::cout<<std::setw(4)<<std::left<<"Øàã"<<":"\
-						 <<std::setw(20)<<std::left<<"Ïðàâèëî"\
-						 <<std::setw(30)<<std::left<<"Âõîäíàÿ ëåíòà"\
-						 <<std::setw(20)<<std::left<<"Ñòåê"\
-						 <<std::endl;
+#define MFST_TRACE_START std::cout << std::setw(4) << std::left << "Шаг" << ": " \
+									  << std::setw(20) << std::left << "Правило" \
+									  << std::setw(30) << std::left << "Входная лента" \
+									  << std::setw(20) << std::left << "Стек" \
+									  << std::endl;
 	int FST_TRACE_n = -1;
 	char rbuf[205], sbuf[205], lbuf[1024];
 
@@ -47,9 +47,9 @@ namespace MFST
 	};
 	MfstState::MfstState(short pposition, MFSTSTSTACK pst, short pnrulechain)
 	{
-		lenta_position = pposition;	///ïîçèöèÿ íà ëåíòå
-		st = pst;					///ñòåê àâòîìàòà
-		nrulechain = -pnrulechain;	///¹ òåê öåïî÷êè
+		lenta_position = pposition;	
+		st = pst;					
+		nrulechain = -pnrulechain;	
 	};
 	MfstState::MfstState(short pposition, MFSTSTSTACK pst, short pnrule, short pnrulechain)
 	{
@@ -189,12 +189,17 @@ namespace MFST
 		char buf[MFST_DIAGN_MAXSIZE];
 		rc_step = step();
 		while (rc_step == NS_OK || rc_step == NS_NORULECHAIN || rc_step == TS_OK || rc_step == TS_NOK) rc_step = step();
+		//NS_OK,				// найдено правило и цепочка, цепочка записана в стек
+		//NS_NORULECHAIN,		// не найдена подходящая цепочка правила (ошибка в исходном коде)
+		//TS_OK,				// тек. символ ленты == вершине стека, продвинулась лента, pop стека
+		//TS_NOK,				// тек. символ ленты != вершине стека, восстановлено состояние
+
 		switch (rc_step)
 		{
-		case LENTA_END: MFST_TRACE4("------>LENTA_END")
-			std::cout << "--------------------------------------------" << std::endl;
-			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d: âñåãî ñòðîê %d, ñèíòàêñè÷åñêèé àíàëèç âûïîëíåí áåç îøèáîê", 0, lenta_size);
-			std::cout << std::setw(4) << std::left << 0 << ": âñåãî ñòðîê " << lenta_size << ", ñèíòàêñè÷åñêèé àíàëèç âûïîëíåí áåç îøèáîê" << std::endl;
+		case LENTA_END:			MFST_TRACE4("------>LENTA_END")
+			cout << "--------------------------------------------------------------------------" << endl;
+			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d всего строк %d, синтаксический анализ выполнен без ошибок", 0, lenta_size);
+			cout << setw(4) << left << 0 << ": всего строк " << lenta_size << ", синтаксический анализ выполнен без ошибок" << endl;
 			rc = true;
 			break;
 		case NS_NORULE:
@@ -236,7 +241,7 @@ namespace MFST
 		{
 			errid = grebach.getRule(diagnosis[n].nrule).iderror;
 			Error::ERROR err = Error::geterror(errid);
-			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d: ñòðîêà %d, %s", err.id, lex.table[lpos].sn, err.message);
+			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d: строка %d, %s", err.id, lex.table[lpos].sn, err.message);
 			rc = buf;
 		};
 		return rc;
@@ -258,7 +263,7 @@ namespace MFST
 		GRB::Rule rule;
 		deducation.nrules = new short[deducation.size = storestate.size()];
 		deducation.nrulechains = new short[deducation.size];
-		for (unsigned short k = 0; k < storestate.size(); k++)
+		for (ushort k = 0; k < storestate.size(); k++)
 		{
 			state = storestate._Get_container()[k];
 			deducation.nrules[k] = state.nrule;

@@ -1,43 +1,43 @@
-b is num = 5 & 2;
-a is num;
+* !!! Polish.cpp с функциями разобраться надо! 
 
-And is foo(a is num, b is num) is num
+* Сделать:
+* сделать проверку на используемые в выражениях литералы и идентификаторы
+* сделать проверку, есть ли return в main или в функциях
+* сделать значение лексеме в таблице идентификаторов
+
+* Сделано:
+* сделать проверку на тип данных. Оператор is
+* (i V i) ? T{}
+* T{} - не работает
+* return убирает область видимости из-за чего все ломается 
+* сделать проверку комментария в символьном литерале '*'
+
+* Заметки:
+* variable => identificator или lexema
+* return 100% должен быть в конце
+
+a => 2 & (2 | 3);
+
+Func2 is foo(a is num) is num
 {
-	return a & b;
+	return a | 1;
+}
+
+Func1 is foo() is num
+{
+	d => '2';
+	
+	c => d & d;
+	
+	return 0;
 }
 
 main
 {
-	result => And(a, a); 
-	c is num = 602;
-	a = ~a & c;
-	d is symb = 'g';
-	d = d | b;
-
-	a = And(a & , c); *сделать проверку на тип параметра
-	
-	d > b ?
-	Truth
+	(1 > 2) ?
+	Truth 
 	{
-		a = a | c & (a & c);
+		a => 'a';
 	}
-	Lie
-	{
-		a = c;
-
-		a == c ?
-		Truth
-		{
-			a = c | c;
-		}
-	}
-
-	a is num ? 
-	Truth
-	{
-		a = And(a, a);
-	}
-
-	console(a);
 	return a;
-}	
+}

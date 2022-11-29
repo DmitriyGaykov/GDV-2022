@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "MFST.h"
+#include "Gen.h"
 
 int main(int argc, _TCHAR* argv[])
 {
@@ -27,23 +28,28 @@ int main(int argc, _TCHAR* argv[])
 
 		cout << endl;
 		
-
+		ofstream fout("trace.txt");
+		
 		MFST_TRACE_START
+
+			fout.close();
 			MFST::Mfst mfst(lextable, GRB::getGreibach());
-		mfst.start();
+		bool resultSint = mfst.start();
 		mfst.savededucation();
-		mfst.printrules();
-
-		cout << endl << endl;
-
-		PN::Polish(lextable, idtable);
-
-		cout << endl << endl;
-
-		for (int i = 0; i < lextable.size; i++)
+		
+		fout.open("trace.txt", ios::app);
+		mfst.printrules(fout);
+		fout.close();
+		
+		if (!resultSint)
 		{
-			cout <<  lextable.table[i].lexema;
+			
+			throw ERROR_THROW(110);
 		}
+		
+		cout << endl << endl;
+		
+		GEN::Generate(lextable, idtable);
 
 		Log::WriteLog(log); // запись в лог
 

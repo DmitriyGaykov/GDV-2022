@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{d6aaf686-9a51-40a5-85c4-1727bd31fb1e}</ProjectGuid>
-    <RootNamespace>GDV2022</RootNamespace>
+    <ProjectGuid>{df98b5e6-4ad1-46ae-a60c-29363ce2b0a6}</ProjectGuid>
+    <RootNamespace>CPP</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -127,39 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Analize.cpp" />
-    <ClCompile Include="Error.cpp" />
-    <ClCompile Include="FST.cpp" />
-    <ClCompile Include="Gen.cpp" />
-    <ClCompile Include="GRB.cpp" />
-    <ClCompile Include="In.cpp" />
-    <ClCompile Include="IT.cpp" />
-    <ClCompile Include="Log.cpp" />
-    <ClCompile Include="LT.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="MFST.cpp" />
-    <ClCompile Include="Out.cpp" />
-    <ClCompile Include="Parm.cpp" />
-    <ClCompile Include="Polish.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Analize.h" />
-    <ClInclude Include="Error.h" />
-    <ClInclude Include="FST.h" />
-    <ClInclude Include="Gen.h" />
-    <ClInclude Include="GRB.h" />
-    <ClInclude Include="In.h" />
-    <ClInclude Include="IT.h" />
-    <ClInclude Include="Log.h" />
-    <ClInclude Include="LT.h" />
-    <ClInclude Include="MFST.h" />
-    <ClInclude Include="Out.h" />
-    <ClInclude Include="Parm.h" />
-    <ClInclude Include="Polish.h" />
-    <ClInclude Include="stdafx.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="in.txt" />
+    <ClCompile Include="Result.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

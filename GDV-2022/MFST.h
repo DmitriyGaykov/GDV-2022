@@ -5,34 +5,34 @@ typedef std::stack<short> MFSTSTSTACK;		///стек автомата
 
 #define MFST_DIAGN_MAXSIZE 2*ERROR_MAXSIZE_MESSAGE
 #define MFST_DIAGN_NUMBER 3
-#define MFST_TRACE_START	cout << std::setw(4) << std::left << "Шаг" << ": " \
+#define MFST_TRACE_START	fout << std::setw(4) << std::left << "Шаг" << ": " \
 									  << std::setw(20) << std::left << "Правило" \
 									  << std::setw(30) << std::left << "Входная лента" \
 									  << std::setw(20) << std::left << "Стек" \
 									  << std::endl;
 
-#define MFST_TRACE1		cout << std::setw(4) << std::left << ++FST_TRACE_n << ": " \
+#define MFST_TRACE1		fout << std::setw(4) << std::left << ++FST_TRACE_n << ": " \
 								  << std::setw(20) << std::left << rule.getCRule(rbuf, nrulechain) \
 								  << std::setw(30) << std::left << getCLenta(lbuf, lenta_position) \
 								  << std::setw(20) << std::left << getCSt(sbuf) \
 								  << std::endl;
 
-#define MFST_TRACE2		cout << std::setw(4) << std::left << FST_TRACE_n<<": " \
+#define MFST_TRACE2		fout << std::setw(4) << std::left << FST_TRACE_n<<": " \
 								  << std::setw(20) << std::left << " " \
 								  << std::setw(30) << std::left << getCLenta(lbuf, lenta_position) \
 								  << std::setw(20) << std::left << getCSt(sbuf) \
 								  << std::endl;
 
-#define MFST_TRACE3		cout << std::setw(4) << std::left << ++FST_TRACE_n <<": " \
+#define MFST_TRACE3		fout << std::setw(4) << std::left << ++FST_TRACE_n <<": " \
 								  << std::setw(20) << std::left << " " \
 								  << std::setw(30) << std::left << getCLenta(lbuf, lenta_position) \
 								  << std::setw(20) << std::left << getCSt(sbuf) \
 								  << std::endl;
 
-#define MFST_TRACE4(c)		cout << std::setw(4) << std::left << ++FST_TRACE_n << ": " << std::setw(20) << std::left << c <<std::endl; 
-#define MFST_TRACE5(c)		cout << std::setw(4) << std::left << FST_TRACE_n << ": " << std::setw(20) << std::left << c << std::endl; 
-#define MFST_TRACE6(c, k)	cout << std::setw(4) << std::left << FST_TRACE_n << ": " << std::setw(20) << std::left << c << k << std::endl; 
-#define MFST_TRACE7			cout << std::setw(4) << std::left << state.lenta_position << ": " \
+#define MFST_TRACE4(c)		fout << std::setw(4) << std::left << ++FST_TRACE_n << ": " << std::setw(20) << std::left << c <<std::endl; 
+#define MFST_TRACE5(c)		fout << std::setw(4) << std::left << FST_TRACE_n << ": " << std::setw(20) << std::left << c << std::endl; 
+#define MFST_TRACE6(c, k)	fout << std::setw(4) << std::left << FST_TRACE_n << ": " << std::setw(20) << std::left << c << k << std::endl; 
+#define MFST_TRACE7			fout << std::setw(4) << std::left << state.lenta_position << ": " \
 								  << std::setw(20) << std::left << rule.getCRule(rbuf, state.nrulechain) \
 								  << std::endl;
 
@@ -115,9 +115,9 @@ namespace MFST
 			char* buf
 		);
 		
-		bool savestate();	///сохранить состояние автомата
+		bool savestate(ofstream& fout);	///сохранить состояние автомата
 		
-		bool reststate();	///восст. состояние автомата
+		bool reststate(ofstream& fout);	///восст. состояние автомата
 		
 		bool push_chain		///поместить цепочку правила в стек
 		(
@@ -132,7 +132,7 @@ namespace MFST
 		(
 			RC_STEP pprc_step	///код завершения шага
 		);
-		void printrules();	///вывести последовательность правил
+		void printrules(ofstream& fout);	///вывести последовательность правил
 
 
 		struct Deducation	///вывод

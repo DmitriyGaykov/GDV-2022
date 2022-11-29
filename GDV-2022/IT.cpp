@@ -16,6 +16,28 @@ namespace IT
 		idtable.size = 0;
 		idtable.table = new Entry[size];
 
+
+		Entry* pEn = new Entry();
+
+		pEn->hasValue = true;
+		strcpy_s(pEn->id, "sum");
+		pEn->iddatatype = IT::NUM;
+		pEn->idtype = IT::F;
+		pEn->countParams = 2;
+		
+		Add(idtable, *pEn);
+		
+		strcpy_s(pEn->id, "minus");
+		Add(idtable, *pEn);
+
+		strcpy_s(pEn->id, "mult");
+		Add(idtable, *pEn);
+		
+		strcpy_s(pEn->id, "division");
+		Add(idtable, *pEn);
+		
+		delete pEn;
+			
 		return idtable;
 	}
 

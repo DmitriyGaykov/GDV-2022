@@ -2,6 +2,8 @@
 using namespace fst;
 
 #define BLOCK_SLASH_N
+#define PARAMETR_OF_LYMBDA 'o'
+#define FOR 'p'
 
 string toString(char* str); // перевод строки char в строку string
 
@@ -182,6 +184,84 @@ void setLexemsAndIds(
 		word = words[i];
 
 		if (
+			i + 2 < words.size() &&
+			words[i + 1] == "=>" &&
+			words[i + 2] == "{"
+			)
+		{
+			bool in_table = is_id_in_table(idtable, words[i], scope);
+			bool in_scope = is_id_in_this_scope(idtable, words[i], scope);
+			
+			if (isId(words[i]))
+			{
+				ide = new IT::Entry();
+				
+				word = getNewWord(word, scope);
+				
+				strcpy_s(ide->id, word.c_str());
+				
+				ide->idxfirstLE = lextable.size;
+
+				ide->hasValue = true;
+
+				int j = i;
+				
+				while (j >= 0 && words[j] != "For")
+				{
+					j--;
+					
+					if (!(j >= 0) && words[j] != "For")
+					{
+						throw ERROR_THROW_IN(611, line, 0);
+					}
+				}
+				
+				j++; // For(
+				j++; // For(id|literal|func
+
+				if (isLiteral(words[j]))
+				{
+					ide->iddatatype = words[j][0] == '\'' ? IT::SYMB : IT::NUM;
+				}
+				else if (isId(words[j]))
+				{
+					tempId = new IT::Entry();
+
+					if (is_id_in_table(idtable, words[j], scope, fullWord))
+					{
+						*tempId = IT::GetEntry(idtable, IT::IsId(idtable, (char*)fullWord->c_str()));
+					}
+
+					auto type = tempId->iddatatype;
+
+					if (type == IT::NUM)
+					{
+						ide->iddatatype = IT::NUM;
+					}
+					else
+					{
+						ide->iddatatype = IT::SYMB;
+					}
+
+					ide->idtype = IT::V;
+					
+					delete tempId;
+				}
+				i++;
+				IT::Add(idtable, *ide);
+
+				lexe.idxTI = idtable.size - 1;
+				lexe.lexema = 'i';
+				lexe.sn = line;
+				lexe.view = 'v';
+
+				LT::Add(lextable, lexe);
+				
+				delete ide;
+				continue;
+			}
+		}
+		else if (
 			i + 1 < words.size() &&
 			words[i + 1] == "=>")
 		{
@@ -257,6 +337,15 @@ void setLexemsAndIds(
 			LT::Add(lextable, lexe);
 		}
 
+		else if (word == "For")
+		{
+			lexe.lexema = FOR;
+			lexe.sn = line;
+			lexe.idxTI = -1;
+			
+			LT::Add(lextable, lexe);
+		}
+		
 		else if (word == "symb")
 		{
 			lexe.idxTI = -1;
@@ -398,6 +487,7 @@ void setLexemsAndIds(
 			lexe.idxTI = -1;
 			lexe.lexema = 'V';
 			lexe.sn = line;
+			lexe.view = word.c_str()[0];
 
 			LT::Add(lextable, lexe);
 		}
@@ -477,6 +567,7 @@ void setLexemsAndIds(
 			lexe.idxTI = -1;
 			lexe.lexema = 'l';
 			lexe.sn = line;
+			lexe.idxTI = idtable.size;
 
 			LT::Add(lextable, lexe);
 
@@ -508,8 +599,8 @@ void setLexemsAndIds(
 			lexe.idxTI = idtable.size;
 			lexe.lexema = 'i';
 			lexe.sn = line;
-
-			LT::Add(lextable, lexe);
+			lexe.idxTI = idtable.size;
+			
 
 			bool in_scope = is_id_in_this_scope(idtable, word, scope);
 			bool in_table = is_id_in_table(idtable, word, scope);
@@ -519,7 +610,7 @@ void setLexemsAndIds(
 			if (
 				words[i + 1] == "is" &&
 				(words[i + 2] == "num" || words[i + 2] == "symb" || words[i + 2] == "foo") &&
-				words[i + 3] != ")" &&
+				words[i + 4] != "?" &&
 				!in_scope
 				)
 			{
@@ -528,7 +619,7 @@ void setLexemsAndIds(
 				word = getNewWord(word, scope);
 
 				strcpy_s(ide->id, word.c_str());
-				ide->idxfirstLE = lextable.size - 1;
+				ide->idxfirstLE = lextable.size;
 				
 				switch (words[i + 2][0])
 				{
@@ -540,6 +631,7 @@ void setLexemsAndIds(
 					break;
 				case 'f':
 					ide->idtype = IT::F;
+					ide->countParams = 0;
 					
 					if (words[i + 3] == "(")
 					{
@@ -548,7 +640,12 @@ void setLexemsAndIds(
 						while (words[j] != ")")
 						{
 							j++;
-
+							
+							if (words[j] == "is")
+							{
+								ide->countParams++;
+							}
+							
 							if (
 								j + 1 == words.size() &&
 								words[j] != ")"
@@ -634,7 +731,6 @@ void setLexemsAndIds(
 					}
 
 					i--;
-					lextable.size--;
 					continue;
 				}
 				
@@ -661,21 +757,13 @@ void setLexemsAndIds(
 
 				*ide = IT::GetEntry(idtable, index);
 
-				/*if (
-					!ide->hasValue &&
-					words[i + 1] != "=" && 
-					ide->idtype != IT::F && 
-					words[i + 1] != "=>")
-				{
-					throw ERROR_THROW_IN(602, line, 0);
-				}*/
-
-				ide->idxfirstLE = lextable.size - 1;
+				ide->idxfirstLE = lextable.size;
 
 				IT::Add(idtable, *ide);
 		
 				delete ide;
 			}
+			LT::Add(lextable, lexe);
 		}
 
 		else
@@ -743,13 +831,24 @@ bool is_id_in_table(
 {
 	string temp = word;
 	int index;
+
+	index = IT::IsId(idtable, (char*)word.c_str());
+
+	if (index != TI_NULLIDX)
+	{
+		if (fullWord != nullptr)
+		{
+			*fullWord = word;
+		}
+		return true;
+	}
 	
 	while (true)
 	{
 		temp = word;
 		
 		temp = getNewWord(temp, scope);
-
+		
 		index = IT::IsId(idtable, (char*)temp.c_str());
 
 		if (index == TI_NULLIDX)

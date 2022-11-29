@@ -24,7 +24,9 @@ namespace PN
 			size = 0;
 			el = 'a';
 			
-			if (lextable.table[i].lexema == '=')
+			if (
+				lextable.table[i].lexema == '=' && 
+				(lextable.table[i + 1].lexema != i && lextable.table[i + 2].lexema != '('))
 			{
 				for (int j = i + 1; lextable.table[j].lexema != ';'; j++)
 				{

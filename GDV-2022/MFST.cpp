@@ -5,7 +5,7 @@
 
 namespace MFST
 {
-#define MFST_TRACE_START std::cout << std::setw(4) << std::left << "Шаг" << ": " \
+#define MFST_TRACE_START fout << std::setw(4) << std::left << "Шаг" << ": " \
 									  << std::setw(20) << std::left << "Правило" \
 									  << std::setw(30) << std::left << "Входная лента" \
 									  << std::setw(20) << std::left << "Стек" \
@@ -17,25 +17,25 @@ namespace MFST
 #define TS(n) GRB::Rule::Chain::T(n);
 #define ISNS(n) GRB::Rule::Chain::isN(n);
 
-#define MFST_TRACE1 std::cout<<std::setw(4)<<std::left<<++FST_TRACE_n<<": "\
+#define MFST_TRACE1 fout<<std::setw(4)<<std::left<<++FST_TRACE_n<<": "\
 						 <<std::setw(20)<<std::left<<rule.getCRule(rbuf,nrulechain)\
 						 <<std::setw(30)<<std::left<<getCLenta(lbuf,lenta_position)\
 						 <<std::setw(20)<<std::left<<getCSt(sbuf)\
 						 <<std::endl;
-#define MFST_TRACE2 std::cout<<std::setw(4)<<std::left<<FST_TRACE_n<<": "\
+#define MFST_TRACE2 fout<<std::setw(4)<<std::left<<FST_TRACE_n<<": "\
 						 <<std::setw(20)<<std::left<<" "\
 						 <<std::setw(30)<<std::left<<getCLenta(lbuf,lenta_position)\
 						 <<std::setw(20)<<std::left<<getCSt(sbuf)\
 						 <<std::endl;
-#define MFST_TRACE3 std::cout<<std::setw(4)<<std::left<<++FST_TRACE_n<<": "\
+#define MFST_TRACE3 fout<<std::setw(4)<<std::left<<++FST_TRACE_n<<": "\
 						 <<std::setw(20)<<std::left<<" "\
 						 <<std::setw(30)<<std::left<<getCLenta(lbuf,lenta_position)\
 						 <<std::setw(20)<<std::left<<getCSt(sbuf)\
 						 <<std::endl;
-#define MFST_TRACE4(c) std::cout<<std::setw(4)<<std::left<<++FST_TRACE_n<<": "<<std::setw(20)<<std::left<<c<<std::endl;
-#define MFST_TRACE5(c) std::cout<<std::setw(4)<<std::left<<FST_TRACE_n<<": "<<std::setw(20)<<std::left<<c<<std::endl;
-#define MFST_TRACE6(c,k) std::cout<<std::setw(4)<<std::left<<FST_TRACE_n<<": "<<std::setw(20)<<std::left<<c<<k<<std::endl;
-#define MFST_TRACE7 std::cout<<std::setw(4)<<std::left<<state.lenta_position<<": "\
+#define MFST_TRACE4(c) fout<<std::setw(4)<<std::left<<++FST_TRACE_n<<": "<<std::setw(20)<<std::left<<c<<std::endl;
+#define MFST_TRACE5(c) fout<<std::setw(4)<<std::left<<FST_TRACE_n<<": "<<std::setw(20)<<std::left<<c<<std::endl;
+#define MFST_TRACE6(c,k) fout<<std::setw(4)<<std::left<<FST_TRACE_n<<": "<<std::setw(20)<<std::left<<c<<k<<std::endl;
+#define MFST_TRACE7	fout<<std::setw(4)<<std::left<<state.lenta_position<<": "\
 					<<std::setw(20)<<std::left<<rule.getCRule(rbuf,state.nrulechain)\
 					<<std::endl;
 
@@ -95,6 +95,7 @@ namespace MFST
 
 	Mfst::RC_STEP Mfst::step()
 	{
+		ofstream fout("trace.txt", ios::app);
 		RC_STEP  rc = SURPRISE;
 		if (lenta_position < lenta_size)
 		{
@@ -107,7 +108,7 @@ namespace MFST
 					if ((nrulechain = rule.getNextChain(lenta[lenta_position], chain, nrulechain + 1)) >= 0)
 					{
 						MFST_TRACE1
-							savestate();
+							savestate(fout);
 							st.pop();
 							push_chain(chain);
 							rc = NS_OK;
@@ -117,7 +118,7 @@ namespace MFST
 					{
 						MFST_TRACE4("TNS_NORULECHAIN/NS_NORULE")
 							savediagnosis(NS_NORULECHAIN); 
-							rc = reststate() ? NS_NORULECHAIN : NS_NORULE;
+							rc = reststate(fout) ? NS_NORULECHAIN : NS_NORULE;
 					};
 				}
 				else rc = NS_ERROR;
@@ -130,7 +131,7 @@ namespace MFST
 			else
 			{
 				MFST_TRACE4("TS_NOK/NS_NORULECHAIN")
-					rc = reststate() ? NS_NORULECHAIN : NS_NORULE;
+					rc = reststate(fout) ? NS_NORULECHAIN : NS_NORULE;
 			};
 		}
 		else
@@ -138,6 +139,7 @@ namespace MFST
 			rc = LENTA_END;
 			MFST_TRACE4("LENTA_END");
 		};
+		fout.close();
 		return rc;
 	};
 	bool Mfst::push_chain(GRB::Rule::Chain chain)
@@ -146,14 +148,14 @@ namespace MFST
 			st.push(chain.nt[k]);
 		return true;
 	};
-	bool Mfst::savestate()
+	bool Mfst::savestate(ofstream& fout)
 	{
 		storestate.push(MfstState(lenta_position, st, nrule, nrulechain));
 		MFST_TRACE6("SAVESTATE:", storestate.size())
 			return true;
 
 	};
-	bool Mfst::reststate()
+	bool Mfst::reststate(ofstream& fout)
 	{
 		bool rc = false;
 		MfstState state;
@@ -194,25 +196,27 @@ namespace MFST
 		//TS_OK,				// тек. символ ленты == вершине стека, продвинулась лента, pop стека
 		//TS_NOK,				// тек. символ ленты != вершине стека, восстановлено состояние
 
+		ofstream fout("trace.txt", ofstream::app);
 		switch (rc_step)
 		{
 		case LENTA_END:			MFST_TRACE4("------>LENTA_END")
-			cout << "--------------------------------------------------------------------------" << endl;
+			fout << "--------------------------------------------------------------------------" << endl;
 			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d всего строк %d, синтаксический анализ выполнен без ошибок", 0, lenta_size);
-			cout << setw(4) << left << 0 << ": всего строк " << lenta_size << ", синтаксический анализ выполнен без ошибок" << endl;
+			fout << setw(4) << left << 0 << ": всего строк " << lenta_size << ", синтаксический анализ выполнен без ошибок" << endl;
 			rc = true;
 			break;
 		case NS_NORULE:
 			MFST_TRACE4("---->NS_NORULE")
-				std::cout << "---------------------------------------------" << std::endl;
-			std::cout << getDiagnosis(0, buf) << std::endl;
-			std::cout << getDiagnosis(1, buf) << std::endl;
-			std::cout << getDiagnosis(2, buf) << std::endl;
+				fout << "---------------------------------------------" << std::endl;
+			fout << getDiagnosis(0, buf) << std::endl;
+			fout << getDiagnosis(1, buf) << std::endl;
+			fout << getDiagnosis(2, buf) << std::endl;
 			break;
 		case NS_NORULECHAIN: MFST_TRACE4("-------->NS_NORULECHAIN") break;
 		case NS_ERROR: MFST_TRACE4("-------->NS_ERROR") break;
 		case SURPRISE: MFST_TRACE4("-------->SURPRISE") break;
 		};
+		fout.close();
 		return rc;
 	};
 	char* Mfst::getCSt(char* buf)
@@ -241,12 +245,13 @@ namespace MFST
 		{
 			errid = grebach.getRule(diagnosis[n].nrule).iderror;
 			Error::ERROR err = Error::geterror(errid);
-			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d: строка %d, %s", err.id, lex.table[lpos].sn, err.message);
+			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d: строка %d, %s\n", err.id, lex.table[lpos].sn, err.message);
+			printf_s(buf, MFST_DIAGN_MAXSIZE, "%d: строка %d, %s", err.id, lex.table[lpos].sn, err.message);
 			rc = buf;
 		};
 		return rc;
 	};
-	void Mfst::printrules()
+	void Mfst::printrules(ofstream& fout)
 	{
 		MfstState state;
 		GRB::Rule rule;

@@ -26,6 +26,7 @@ namespace IT
 	struct Entry // запись в таблице идентификаторов
 	{
 		int idxfirstLE; // индекс первой строки в таблице лексем
+		short countParams; // кол-во параметров, если это функция 
 		char id[ID_MAXSIZE]; // идентификатор
 		IDDATATYPE iddatatype; // тип данных идентификатора
 		IDTYPE idtype; // тип идентификатора
@@ -42,6 +43,7 @@ namespace IT
 		Entry()
 		{
 			hasValue = false;
+			countParams = -1;
 		}
 	};
 

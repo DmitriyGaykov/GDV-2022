@@ -34,7 +34,8 @@ int main(int argc, _TCHAR* argv[])
 
 			fout.close();
 			MFST::Mfst mfst(lextable, GRB::getGreibach());
-		bool resultSint = mfst.start();
+		
+			bool resultSint = mfst.start();
 		mfst.savededucation();
 		
 		fout.open("trace.txt", ios::app);

@@ -193,11 +193,15 @@ namespace GEN
 
 			case 'V':
 			{
-				if (lextable.table[i].view != '=')
+				if (lextable.table[i].view == '=')
 				{
 					fout << " " << lextable.table[i].view << " ";
 				}
-				else
+				else if (lextable.table[i].view == '!')
+				{
+					fout << " != ";
+				}
+				else if (lextable.table[i].view != '=')
 				{
 					fout << " == ";
 				}

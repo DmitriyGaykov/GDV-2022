@@ -23,8 +23,10 @@ int division(int a, int b)
 {
 	return a / b;
 }
+
 void For(int start, int end, int step, std::function<void(int)> foo)
 {
+	step = abs(step);
 	if (start < end)
 	{
 		for (int i = start; i <= end; i += step)
@@ -43,6 +45,8 @@ void For(int start, int end, int step, std::function<void(int)> foo)
 
 void For(char start, char end, int step, std::function<void(char)> foo)
 {
+	step = abs(step);
+	
 	if (start < end)
 	{
 		for (int i = start; i <= end; i += step)

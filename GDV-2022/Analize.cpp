@@ -116,6 +116,15 @@ void LexAnalize(
 
 					words.push_back(word);
 				}
+				if (symb == '!')
+				{
+					word += symb;
+					word += text[i + 1];
+
+					i++;
+
+					words.push_back(word);
+				}
 				else if (
 					symb == '=' &&
 					text[i + 1] == '>'
@@ -179,6 +188,7 @@ void LexAnalize(
 			}
 		}
 	}
+
 	setLexemsAndIds(words, lextable, idtable);
 }
 
@@ -512,7 +522,8 @@ void setLexemsAndIds(
 		else if (
 			word == ">" ||
 			word == "<" ||
-			word == "==")
+			word == "==" ||
+			word == "!=")
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = 'V';
@@ -835,7 +846,7 @@ string toString(char* str)
 
 bool isStopSymbol(char symbol)
 {
-	const char* stopSymbols = " \t\n;,{}()?><=,&|~\'";
+	const char* stopSymbols = " \t\n;,{}()?><=,&|~!\'";
 
 	for (short i = 0; i < strlen(stopSymbols); i++)
 	{

@@ -7,6 +7,11 @@ using namespace fst;
 
 string toString(char* str); // перевод строки char в строку string
 
+void insertToStr( // вставить в строку текст
+	char* str, // строка, в которую будем вставлять строку
+	string insertedStr, // строка, которая будет вставлена
+	int index); // индекс, куда вставлять
+
 bool isStopSymbol(char symbol); // проверка на символ конца строки. Возвращает N, если это не стоп-символ, иначе возвращает переданный символ
 
 void setLexemsAndIds( // разбиение строки на лексемы и идентификаторы
@@ -40,6 +45,18 @@ void LexAnalize(
 	LT::LexTable& lextable,
 	IT::IdTable& idtable)
 {
+	map<string, string> funcsGDV =
+	{
+		{"pow",
+		" pow is foo(number is num, power is num) is num { result => 1; For(1, power, 1, i => { result = mult(result, number); }); return result;\}"},
+
+		{"symb_to_num",
+		"symb_to_num is foo(s is symb) is num{(s == '0') ?Truth{return 0;}(s == '1') ?Truth{return 1;}(s == '2') ?Truth{return 2;}(s == '3') ?Truth{return 3;}(s == '4') ?Truth{return 4;}(s == '5') ?Truth{return 5;}(s == '6') ?Truth{return 6;}(s == '7') ?Truth{return 7;}(s == '8') ?Truth{return 8;}(s == '9') ?Truth{return 9;}return s;}"},
+		
+		{"abs",
+		"abs is foo(number is num) is num{(number < 0) ? Truth { return mult(number, -1);}return number;}"}
+	};
+
 	char* text = (char*)in.text;
 	vector<string> words;
 	string word = "";
@@ -139,6 +156,22 @@ void LexAnalize(
 				}
 
 				word = "";
+
+				if (words.size() >= 3 && words[words.size() - 3] == "@import")
+				{
+					if (funcsGDV.find(words[words.size() - 2]) != funcsGDV.end())
+					{
+						insertToStr(text, funcsGDV[words[words.size() - 2]], i);
+					}
+					else
+					{
+						throw ERROR_THROW_IN(119, line, 0);
+					}
+					words.pop_back();
+					words.pop_back();
+					words.pop_back();
+					i--;
+				}
 			}
 			else
 			{
@@ -146,9 +179,6 @@ void LexAnalize(
 			}
 		}
 	}
-	
-	// for (auto i : words) cout << i << endl;
-	
 	setLexemsAndIds(words, lextable, idtable);
 }
 
@@ -503,6 +533,23 @@ void setLexemsAndIds(
 			lexe.view = word[0];
 
 			LT::Add(lextable, lexe);
+		}
+
+		else if (
+			word == "-"
+		)
+		{
+			if (
+				i + 1 < words.size() &&
+				isLiteral(words[i + 1]) &&
+				words[i + 1][0] != '\'')
+			{
+				words[i + 1] = "-" + words[i + 1];
+			}
+			else
+			{
+				throw ERROR_THROW_IN(120, line, 0);
+			}
 		}
 
 		else if (word == "~")
@@ -899,9 +946,35 @@ string getNewWord(string word, stack<string> scope)
 	word += ".";
 	while (!scope.empty())
 	{
-		word +=  scope.top();
+		word += "." + scope.top();
 		scope.pop();
 	}
 
 	return word;
+}
+
+void insertToStr(
+	char* str,
+	string insertedStr,
+	int index)
+{
+	int len = strlen(str);
+	
+	string after = "";
+	string before = "";
+
+	for (int i = 0; i < len; i++)
+	{
+		if (i < index)
+		{
+			before += str[i];
+		}
+		else
+		{
+			after += str[i];
+		}
+	}
+
+	string res = before + insertedStr + after;
+	strcpy_s(str, res.c_str());
 }

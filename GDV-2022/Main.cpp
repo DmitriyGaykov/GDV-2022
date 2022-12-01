@@ -43,8 +43,7 @@ int main(int argc, _TCHAR* argv[])
 		
 		if (!resultSint)
 		{
-			
-			throw ERROR_THROW(110);
+			throw ERROR_THROW(121);
 		}
 		
 		cout << endl << endl;

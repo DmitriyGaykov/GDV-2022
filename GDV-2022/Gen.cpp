@@ -193,7 +193,14 @@ namespace GEN
 
 			case 'V':
 			{
-				fout << " " << lextable.table[i].view << " ";
+				if (lextable.table[i].view != '=')
+				{
+					fout << " " << lextable.table[i].view << " ";
+				}
+				else
+				{
+					fout << " == ";
+				}
 				break;
 			}
 
@@ -259,18 +266,25 @@ namespace GEN
 					}
 					size = 0;
 					isEndOfIf = false;
-
-					for (int j = i; lextable.table[j].lexema != '?'; j++)
+					if (lextable.table[i - 1].lexema != 'i')
 					{
-						if (
-							lextable.table[j].lexema == ';' ||
-							lextable.table[j].lexema == '{' ||
-							lextable.table[j].lexema == '}')
+						for (int j = i; lextable.table[j].lexema != '?'; j++)
 						{
-							isEndOfIf = true;
-							break;
+							if (
+								lextable.table[j].lexema == ';' ||
+								lextable.table[j].lexema == '{' ||
+								lextable.table[j].lexema == '}')
+							{
+								isEndOfIf = true;
+								break;
+							}
+							size++;
 						}
-						size++;
+					}
+					else
+					{
+						fout << "(";
+						break;
 					}
 
 					if (isEndOfIf)
@@ -392,8 +406,6 @@ namespace GEN
 			}
 			}
 		}
-		
-		//fout << ENDMAIN;
 		
 		delete[] expr;
 		fout.close();

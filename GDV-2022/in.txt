@@ -26,32 +26,18 @@
 
 * Объявление: a => value | identificator; a is num; a is symb;
 
-@import pow
-
-Fact is foo(a is num) is num
-{
-	fact => 1;
-
-	For(1, a, 1, i => {
-		fact = mult(fact, i);
-	});
-
-	return fact;
-}
-
 main 
 {
-	pow is foo(number is num, power is num) is num
+	Fact is foo(a is num) is num
 	{
-		result => 1;
-
-		For(1, power, 1, i => {
-			result = mult(result, number);
+		fact => 1;
+	
+		For(1, a, 1, i => {
+			fact = mult(fact, i);
 		});
-
-		return result;
+	
+		return fact;
 	};
-
-	console(pow(2, 3));
+	
 	return 0;
 }

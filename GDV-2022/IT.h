@@ -1,6 +1,8 @@
 #pragma once
+#include <vector>
+#include <string>
 
-#define ID_MAXSIZE 20 // максимальное количество символов в идентификаторе
+#define ID_MAXSIZE 150 // максимальное количество символов в идентификаторе
 #define TI_MAXSIZE 4096 // максимальное количество записей в таблице идентификаторов
 #define TI_INT_DEFAULT 0x00000000 // значение по умолчанию для типа integer
 #define TT_STR_DEFAULT 0x00 // значение по умолчанию для типа string
@@ -12,7 +14,9 @@ namespace IT
 	enum IDDATATYPE // типы данных идентификаторов
 	{
 		NUM = 1,
-		SYMB = 2
+		SYMB = 2,
+		FLT = 3,
+		ACTION,
 	};
 
 	enum IDTYPE // типы идентификаторов
@@ -31,19 +35,31 @@ namespace IT
 		IDDATATYPE iddatatype; // тип данных идентификатора
 		IDTYPE idtype; // тип идентификатора
 		bool hasValue;
+		bool isRef;
+		bool isFromStatic;
 
+		std::vector<std::string> params;
+
+		bool needToInt;
+		
 		union
 		{
 			int vint; // значение для типа num
 
 			char vsymb; // значение типа symb
 
+			float vflt; // значение типа float
+
+		
 		} value;
 
 		Entry()
 		{
 			hasValue = false;
 			countParams = -1;
+			needToInt = false;
+			isRef = false;
+			isFromStatic = false;
 		}
 	};
 

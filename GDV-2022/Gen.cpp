@@ -26,6 +26,18 @@ namespace GEN
 		int countScopesForConsole = 0;
 		bool isConsole = false;
 		
+		bool isFor = false;
+		char stateFor;
+		short countParamsGone = 0;
+		const short maxChanged = 2;
+
+		stack<bool> isCalledFoo;
+		isCalledFoo.push(false);
+		stack<int> cntScopesCF;
+		cntScopesCF.push(0);
+		stack<int> numberOfP;
+		stack<vector<string>> paramsCF;
+		
 		tabs.push("");
 		
 		fout << HEADER;
@@ -51,11 +63,19 @@ namespace GEN
 					}
 					else if (edi->iddatatype == IT::NUM)
 					{
-						fout << "int " << edi->id;
+						fout << "int" << (edi->isRef ? "& " : " ") << edi->id;
 					}
-					else
+					else if (edi->iddatatype == IT::SYMB)
 					{
-						fout << "char " << edi->id;
+						fout << "char" << (edi->isRef ? "& " : " ") << edi->id;
+					}
+					else if (edi->iddatatype == IT::FLT)
+					{
+						fout << "float" << (edi->isRef ? "& " : " ") << edi->id;
+					}
+					else if (edi->iddatatype == IT::ACTION)
+					{
+						fout << "void " << edi->id;
 					}
 					
 					i += 2;
@@ -72,7 +92,7 @@ namespace GEN
 					*edi = IT::GetEntry(idtable, lextable.table[i].idxTI);
 					changeDoth(edi->id);
 
-					fout << "[&](" << (edi->iddatatype == IT::NUM ? "int " : "char ") << edi->id << ")";
+					fout << "[&](" << (edi->iddatatype == IT::NUM ? "int " : edi->iddatatype == IT::FLT ? "float " :  "char ") << edi->id << ")";
 
 					delete edi;
 				}
@@ -90,6 +110,7 @@ namespace GEN
 
 					if (edi->idtype == IT::F)
 					{
+						
 						if (lextable.table[j].lexema == '(')
 						{
 							do
@@ -120,7 +141,85 @@ namespace GEN
 						}
 					}
 					
-					fout << edi->id;
+					if (isFor)
+					{
+						switch (stateFor)
+						{
+						case 'n':
+							fout << "(int)";
+							break;
+						case 's':
+							fout << "(char)";
+							break;
+						case 'f':
+							fout << "(float)";
+							break;
+						}
+						
+						countParamsGone++;
+						
+						if (countParamsGone == maxChanged)
+						{
+							isFor = false;
+						}
+					}
+					
+					if (isCalledFoo.top() && cntScopesCF.top() == 1)
+					{
+						if (paramsCF.top()[numberOfP.top()].back() == '&' && idtable.table[lextable.table[i].idxTI].idtype == IT::F)
+						{
+							throw ERROR_THROW_IN(619, lextable.table[i].sn, 0);
+						}
+						fout << "(" << paramsCF.top()[numberOfP.top()] << ")";
+						short tmp = numberOfP.top() + 1;
+						numberOfP.pop();
+						numberOfP.push(tmp);
+					}
+
+					if (edi->idtype == IT::F)
+					{
+						if (!edi->isFromStatic)
+						{
+							isCalledFoo.push(true);
+							cntScopesCF.push(0);
+							numberOfP.push(0);
+							paramsCF.push(edi->params);
+						}
+						else
+						{
+							isCalledFoo.push(true);
+							cntScopesCF.push(0);
+							numberOfP.push(0);
+
+							tedi = new IT::Entry();
+
+							*tedi = IT::GetEntry(idtable, IT::GetIndexByLTIndex(idtable, i + 2));
+
+							vector<string> v;
+
+							if (tedi->iddatatype == IT::NUM)
+							{
+								v.push_back("int");
+								v.push_back("int");
+							}
+							else if (tedi->iddatatype == IT::FLT)
+							{
+								v.push_back("float");
+								v.push_back("float");
+							}
+							else if (tedi->iddatatype == IT::SYMB)
+							{
+								v.push_back("char");
+								v.push_back("char");
+							}
+
+							paramsCF.push(v);
+
+							delete tedi;
+						}
+					}
+					
+					fout << (edi->needToInt ? "(int)" : "") << edi->id;
 					
 					delete edi;
 				}
@@ -133,9 +232,49 @@ namespace GEN
 
 				*edi = IT::GetEntry(idtable, lextable.table[i].idxTI);
 
+				if (isFor)
+				{
+					switch (stateFor)
+					{
+					case 'n':
+						fout << "(int)";
+						break;
+					case 's':
+						fout << "(char)";
+						break;
+					case 'f':
+						fout << "(float)";
+						break;
+					}
+
+					countParamsGone++;
+
+					if (countParamsGone == maxChanged)
+					{
+						isFor = false;
+					}
+				}
+
+				if (isCalledFoo.top() && cntScopesCF.top() == 1)
+				{
+					if (paramsCF.top()[numberOfP.top()].back() == '&')
+					{
+						throw ERROR_THROW_IN(619, lextable.table[i].sn, 0);
+					}
+					
+					fout << "(" << paramsCF.top()[numberOfP.top()] << ")";
+					short tmp = numberOfP.top() + 1;
+					numberOfP.pop();
+					numberOfP.push(tmp);
+				}
+
 				if (edi->iddatatype == IT::NUM)
 				{
 					fout << edi->value.vint;
+				}
+				else if (edi->iddatatype == IT::FLT)
+				{
+					fout << (edi->needToInt ? "(int)" : "") << edi->value.vflt << "f";
 				}
 				else
 				{
@@ -146,6 +285,12 @@ namespace GEN
 				break;
 			}
 
+			case 'b':
+			{
+				fout << "return true";
+				break;
+			}
+			
 			case 'r':
 			{
 				fout << "return ";
@@ -155,6 +300,11 @@ namespace GEN
 			case FOR:
 			{
 				fout << "For";
+				
+				isFor = true;
+				stateFor = lextable.table[i].view;
+				countParamsGone = 0;
+				
 				break;
 			}
 
@@ -195,7 +345,7 @@ namespace GEN
 			{
 				if (lextable.table[i].view == '=')
 				{
-					fout << " " << lextable.table[i].view << " ";
+					fout << " == ";
 				}
 				else if (lextable.table[i].view == '!')
 				{
@@ -203,14 +353,70 @@ namespace GEN
 				}
 				else if (lextable.table[i].view != '=')
 				{
-					fout << " == ";
+					fout << " " << lextable.table[i].view << " ";
 				}
 				break;
 			}
 
 			case '{': case '}':
-			{	
+			/*{
+				if (lextable.table[i].lexema == '{')
+				{
+					fout << '\n';
+					t = tabs;
+					
+					while (!t.empty())
+					{
+						fout << t.top();
+						t.pop();
+					}
+
+					fout << lextable.table[i].lexema << '\n';
+					
+					tabs.push("\t");
+					
+					t = tabs;
+
+					while (!t.empty())
+					{
+						fout << t.top();
+						t.pop();
+					}
+
+				}
+				else if (lextable.table[i].lexema == '}')
+				{
+					if (
+						i + 1 < lextable.size && 
+						(lextable.table[i + 1].lexema != ')' || lextable.table[i - 1].lexema != ';')
+					)
+					{
+						fout << '\n';
+						
+						t = tabs;
+
+						while (!t.empty())
+						{
+							fout << t.top();
+							t.pop();
+						}
+					}
+					
+					tabs.pop();
+
+					t = tabs;
+
+					while (!t.empty())
+					{
+						fout << t.top();
+						t.pop();
+					}
+
+				}
 				
+				break;
+			}*/
+			{	
 				fout << "\n";
 				
 				t = tabs;
@@ -226,10 +432,10 @@ namespace GEN
 					t.pop();
 				}
 
-				fout << lextable.table[i].lexema << (i + 1 < lextable.size && (lextable.table[i + 1].lexema != ';' && lextable.table[i + 1].lexema != '}' && lextable.table[i + 1].lexema != '{')  ? "\n" : "");
 
 				if (lextable.table[i].lexema == '{')
 				{
+					fout << lextable.table[i].lexema << (i + 1 < lextable.size && (lextable.table[i + 1].lexema != ';' && lextable.table[i + 1].lexema != '}' && lextable.table[i + 1].lexema != '{')  ? "\n" : "");
 					tabs.push("\t");
 					t = tabs;
 					
@@ -241,14 +447,59 @@ namespace GEN
 				}
 				else
 				{
-					tabs.pop();
-					
-					t = tabs;
-
-					while (!t.empty())
+					if (i + 1 < lextable.size && lextable.table[i + 1].lexema == ')')
 					{
-						fout << t.top();
-						t.pop();
+						fout << "\n";
+						
+
+						t = tabs;
+
+						while (!t.empty())
+						{
+							fout << t.top();
+							t.pop();
+						}
+						
+						fout << "return false;\n";
+						
+						tabs.pop();
+
+						t = tabs;
+
+						while (!t.empty())
+						{
+							fout << t.top();
+							t.pop();
+						}
+
+						fout << "}";
+						
+						if (i + 1 < lextable.size && 
+							(lextable.table[i + 1].lexema != ';' && lextable.table[i + 1].lexema != ')'))
+						{
+							fout << "\n";
+							t = tabs;
+
+							while (!t.empty())
+							{
+								fout << t.top();
+								t.pop();
+							}
+						}
+					}
+					else
+					{
+						tabs.pop();
+
+						fout << lextable.table[i].lexema << (i + 1 < lextable.size && (lextable.table[i + 1].lexema != ';' && lextable.table[i + 1].lexema != '}' && lextable.table[i + 1].lexema != '{') ? "\n" : "");
+						t = tabs;
+
+						while (!t.empty())
+						{
+							fout << t.top();
+							t.pop();
+						}
+						
 					}
 				}
 				
@@ -257,6 +508,12 @@ namespace GEN
 
 			case '(':
 			{
+				if (isCalledFoo.top())
+				{
+					short tmp = cntScopesCF.top() + 1;
+					cntScopesCF.pop();
+					cntScopesCF.push(tmp);
+				}
 				if (isConsole && lextable.table[i - 1].lexema != 'i')
 				{
 					countScopesForConsole++;
@@ -329,6 +586,20 @@ namespace GEN
 			
 			case ')':
 			{
+				if (isCalledFoo.top())
+				{
+					short tmp = cntScopesCF.top() - 1;
+					cntScopesCF.pop();
+					cntScopesCF.push(tmp);
+					
+					if (cntScopesCF.top() == 0)
+					{
+						isCalledFoo.pop();
+						numberOfP.pop();
+						cntScopesCF.pop();
+						paramsCF.pop();
+					}
+				}
 				if (isConsole && lextable.table[i + 1].lexema != ',' && lextable.table[i + 1].lexema != ')')
 				{
 					countScopesForConsole--;
@@ -384,6 +655,12 @@ namespace GEN
 					t.pop();
 				}
 				
+				break;
+			}
+
+			case '~':
+			{
+				fout << "~";
 				break;
 			}
 			

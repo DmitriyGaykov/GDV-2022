@@ -5,41 +5,6 @@ using namespace fst;
 #define PARAMETR_OF_LYMBDA 'o'
 #define FOR 'p'
 
-string toString(char* str); // перевод строки char в строку string
-
-void insertToStr( // вставить в строку текст
-	char* str, // строка, в которую будем вставлять строку
-	string insertedStr, // строка, которая будет вставлена
-	int index); // индекс, куда вставлять
-
-bool isStopSymbol(char symbol); // проверка на символ конца строки. Возвращает N, если это не стоп-символ, иначе возвращает переданный символ
-
-void setLexemsAndIds( // разбиение строки на лексемы и идентификаторы
-	vector<string>& words, // все слова в тектовом документе
-	LT::LexTable& lexems, // таблица лексем
-	IT::IdTable& idtable); // таблица идентификаторов
-
-bool isLiteral(string word); // проверяет слово, является ли оно литералом
-
-bool isId(string word); // проверяет слово, является ли оно идентификатором
-
-bool is_id_in_table( // проверяет, есть ли идентификатор в таблице идентификаторов
-	IT::IdTable& idtable, // таблица идентификаторов
-	string word, // слово, которое нужно проверить
-	stack<string> scope,
-	string* fullWord = nullptr); // стек областей видимости
-
-bool is_id_in_this_scope( // проверить переменную в данной области видимости
-	IT::IdTable& idtable, // таблица идентификаторов
-	string word, // слово
-	stack<string> scope // область видимости
-);
-
-string getNewWord( // получить новое слово учитывая область видимости
-	string word, // имя переменной
-	stack<string> scope // область видимости
-);
-
 void LexAnalize(
 	In::IN in,
 	LT::LexTable& lextable,
@@ -115,8 +80,9 @@ void LexAnalize(
 					i++;
 
 					words.push_back(word);
+					word = "";
 				}
-				if (symb == '!')
+				else if (symb == '!')
 				{
 					word += symb;
 					word += text[i + 1];
@@ -124,6 +90,8 @@ void LexAnalize(
 					i++;
 
 					words.push_back(word);
+					
+					word = "";
 				}
 				else if (
 					symb == '=' &&
@@ -189,6 +157,11 @@ void LexAnalize(
 		}
 	}
 
+	/*for (auto i : words)
+	{
+		cout << i << endl;
+	}*/
+
 	setLexemsAndIds(words, lextable, idtable);
 }
 
@@ -202,8 +175,13 @@ void setLexemsAndIds(
 	IT::Entry* ide;
 	ushort line = 1;
 	ushort countScopes = 0;
+
+	ushort countActionScopes = 0;
+	bool isAction = false;
 	
 	string* fullWord = new string;
+	stack<bool> isFor;
+	isFor.push(false);
 
 	stack<string> scope;
 	stack<string> tempScope;
@@ -226,80 +204,77 @@ void setLexemsAndIds(
 		if (
 			i + 2 < words.size() &&
 			words[i + 1] == "=>" &&
-			words[i + 2] == "{"
+			nextIs("{", words, i + 2)
 			)
 		{
 			bool in_table = is_id_in_table(idtable, words[i], scope);
 			bool in_scope = is_id_in_this_scope(idtable, words[i], scope);
-			
-			if (isId(words[i]))
+			ide = new IT::Entry();
+			if (isLiteral(words[i]))
 			{
-				ide = new IT::Entry();
-				
+				throw ERROR_THROW_IN(612,line, 0);
+			}
+			else if (isId(words[i]))
+			{
+				tempId = new IT::Entry();
+
 				word = getNewWord(word, scope);
 				
 				strcpy_s(ide->id, word.c_str());
-				
-				ide->idxfirstLE = lextable.size;
-
 				ide->hasValue = true;
-
-				int j = i;
+				ide->idtype = IT::P;
+				ide->idxfirstLE = lextable.size;
 				
-				while (j >= 0 && words[j] != "For")
+				int j = i - 2;
+
+				while (j >= 0 && words[j] != ",")
 				{
+					if (j == 0 && words[j] != ",")
+					{
+						throw ERROR_THROW_IN(613, line, 0);
+					}
 					j--;
-					
-					if (!(j >= 0) && words[j] != "For")
-					{
-						throw ERROR_THROW_IN(611, line, 0);
-					}
 				}
-				
-				j++; // For(
-				j++; // For(id|literal|func
 
-				if (isLiteral(words[j]))
+				j++;
+
+				if (isId(words[j]))
 				{
-					ide->iddatatype = words[j][0] == '\'' ? IT::SYMB : IT::NUM;
+					if ((index = IT::IsId(idtable, (char*)words[j].c_str()) != TI_NULLIDX))
+					{
+						*tempId = IT::GetEntry(idtable, index);
+						ide->iddatatype = tempId->iddatatype;
+					}
 				}
-				else if (isId(words[j]))
+				else if (isLiteral(words[j]))
 				{
-					tempId = new IT::Entry();
-
-					if (is_id_in_table(idtable, words[j], scope, fullWord))
-					{
-						*tempId = IT::GetEntry(idtable, IT::IsId(idtable, (char*)fullWord->c_str()));
-					}
-
-					auto type = tempId->iddatatype;
-
-					if (type == IT::NUM)
-					{
-						ide->iddatatype = IT::NUM;
-					}
-					else
-					{
-						ide->iddatatype = IT::SYMB;
-					}
-
-					ide->idtype = IT::V;
-					
-					delete tempId;
+					ide->iddatatype = words[j][0] == '\'' ? IT::SYMB 
+									  : isFloat(words[j]) ? IT::FLT : 
+															IT::NUM;
 				}
-				i++;
-				IT::Add(idtable, *ide);
+				else
+				{
+					throw ERROR_THROW_IN(614, line, 0);
+				}
 
-				lexe.idxTI = idtable.size - 1;
-				lexe.lexema = 'i';
-				lexe.sn = line;
-				lexe.view = 'v';
+				j = i;
 
-				LT::Add(lextable, lexe);
-				
-				delete ide;
-				continue;
+				delete tempId;
 			}
+			
+			i++;
+			IT::Add(idtable, *ide);
+
+			lexe.idxTI = idtable.size - 1;
+			lexe.lexema = 'i';
+			lexe.sn = line;
+			lexe.view = 'v';
+
+			LT::Add(lextable, lexe);
+			
+			delete ide;
+			continue;
+			
 		}
 		else if (
 			i + 1 < words.size() &&
@@ -313,6 +288,10 @@ void setLexemsAndIds(
 				if (fullWord->c_str()[0] == '\'')
 				{
 					words.insert(words.begin() + i + 2, "symb");
+				}
+				else if (isFloat(*fullWord))
+				{
+					words.insert(words.begin() + i + 2, "float");
 				}
 				else
 				{
@@ -330,6 +309,10 @@ void setLexemsAndIds(
 				if (tempId->iddatatype == IT::NUM)
 				{
 					words.insert(words.begin() + i + 2, "num");
+				}
+				else if (tempId->iddatatype == IT::FLT)
+				{
+					words.insert(words.begin() + i + 2, "float");
 				}
 				else
 				{
@@ -377,11 +360,54 @@ void setLexemsAndIds(
 			LT::Add(lextable, lexe);
 		}
 
+		else if (word == "break")
+		{
+			if (!isFor.top())
+			{
+				throw ERROR_THROW_IN(616, line, 0);
+			}
+			lexe.idxTI = -1;
+			lexe.lexema = 'b';
+			lexe.sn = line;
+
+			LT::Add(lextable, lexe);
+		}
+
 		else if (word == "For")
 		{
+			scope.push("For" + to_string(countScopes++));
 			lexe.lexema = FOR;
 			lexe.sn = line;
 			lexe.idxTI = -1;
+
+			int j = i + 1;
+			isFor.push(true);
+			while (words[j] != "=>")
+			{
+				if (j == words.size())
+				{
+					throw ERROR_THROW_IN(615, line, 0);
+				}
+				j++;
+			}
+			
+			j--; // i/l,el 
+			j--; // i/l,
+			j--; // i/l
+			
+			if (isLiteral(words[j]))
+			{
+				lexe.view = words[j][0] == '\'' ? 's' : isFloat(words[j]) ? 'f' : 'n';
+			}
+			else if ((index = IT::IsId(idtable, (char*)words[j].c_str()) != TI_NULLIDX))
+			{
+				tempId = new IT::Entry();
+				
+				*tempId = IT::GetEntry(idtable, index);
+				lexe.view = tempId->iddatatype == IT::NUM ? 'n' : tempId->iddatatype == IT::FLT ? 'f' : 's';
+				
+				delete tempId;
+			}
 			
 			LT::Add(lextable, lexe);
 		}
@@ -395,6 +421,24 @@ void setLexemsAndIds(
 			LT::Add(lextable, lexe);
 		}
 
+		else if (word == "float")
+		{
+			lexe.idxTI = -1;
+			lexe.lexema = 't';
+			lexe.sn = line;
+
+			LT::Add(lextable, lexe);
+		}
+
+		else if (word == "action")
+		{
+			lexe.idxTI = -1;
+			lexe.lexema = 'a';
+			lexe.sn = line;
+
+			LT::Add(lextable, lexe);
+		}
+		
 		else if (word == "=" )
 		{
 			lexe.idxTI = -1;
@@ -405,7 +449,7 @@ void setLexemsAndIds(
 
 			//////////////////////////////
 
-			if (words[i - 1] == "num" || words[i - 1] == "symb")
+			if (words[i - 1] == "num" || words[i - 1] == "symb" || words[i - 1] == "float")
 			{
 				fullWord = &words[i - 3];
 			}
@@ -459,8 +503,20 @@ void setLexemsAndIds(
 			lexe.sn = line;
 
 			LT::Add(lextable, lexe);
-
+			
 			scope.push(words[i - 2]);
+			
+			ide = new IT::Entry();
+
+			*ide = IT::GetEntry(idtable, IT::GetIndexByLTIndex(idtable, lextable.size - 1 - 1 - 1));
+
+			if (ide->iddatatype == IT::ACTION)
+			{
+				isAction = true;
+				countActionScopes = 0;
+			}
+			
+			delete ide;
 		}
 
 		else if (word == "(")
@@ -495,6 +551,11 @@ void setLexemsAndIds(
 			}
 
 			countScopes++;
+
+			if (isAction)
+			{
+				countActionScopes++;
+			}
 		}
 
 		else if (word == "}")
@@ -508,6 +569,26 @@ void setLexemsAndIds(
 			scope.pop(); // хз, пока как указать =)
 
 			countScopes--;
+
+			if (
+				i + 1 < words.size() &&
+				words[i + 1] == ")"
+				)
+			{
+				isFor.pop();
+				scope.pop();
+			}
+
+			if (isAction)
+			{
+				countActionScopes--;
+				
+				if (countActionScopes == 0)
+				{
+					scope.pop();
+					isAction = false;
+				}
+			}
 		}
 
 		else if (word == ",")
@@ -633,12 +714,24 @@ void setLexemsAndIds(
 
 			ide->idxfirstLE = lextable.size - 1;
 			ide->idtype = IT::L;
-			ide->iddatatype = word[0] == '\'' ? IT::SYMB : IT::NUM;
+			ide->iddatatype = word[0] == '\'' ? IT::SYMB 
+							  : isFloat(word) ? IT::FLT : IT::NUM;
 			ide->hasValue = true;
 			
 			if (ide->iddatatype == IT::NUM)
 			{
 				ide->value.vint = stoi(word);
+			}
+			else if (ide->iddatatype == IT::FLT)
+			{
+				for (auto& i : word)
+				{
+					if (i == '.')
+					{
+						i = ',';
+					}
+				}
+				ide->value.vflt = stof(word);
 			}
 			else
 			{
@@ -665,9 +758,18 @@ void setLexemsAndIds(
 			
 			/////////////////////////////////////////
 			
+			/*if (
+				nextIs("is", words, i + 1) &&
+				(nextIs("num", words, i + 2) || nextIs("symb", words, i + 2) || nextIs("float", words, i + 2) || nextIs("foo", words, i + 2) ||
+					(nextIs("ref", words, i + 2) && (nextIs("num", words, i + 3) || nextIs("symb", words, i + 3) || nextIs("symb", words, i + 3)))) &&
+				words[i + 4] != "?" &&
+				!in_scope
+				)*/
+			
 			if (
 				words[i + 1] == "is" &&
-				(words[i + 2] == "num" || words[i + 2] == "symb" || words[i + 2] == "foo") &&
+				(words[i + 2] == "num" || words[i + 2] == "symb" || words[i + 2] == "float" || words[i + 2] == "foo" || 
+				(words[i + 2] == "ref" && (words[i + 3] == "num" || words[i + 3] == "symb" || words[i + 3] == "float"))) &&
 				words[i + 4] != "?" &&
 				!in_scope
 				)
@@ -678,6 +780,13 @@ void setLexemsAndIds(
 
 				strcpy_s(ide->id, word.c_str());
 				ide->idxfirstLE = lextable.size;
+
+				if (words[i + 2] == "ref")
+				{
+					ide->isRef = true;
+					words.erase(words.begin() + i + 2);
+				}
+				
 				
 				switch (words[i + 2][0])
 				{
@@ -688,6 +797,16 @@ void setLexemsAndIds(
 					ide->iddatatype = IT::SYMB;
 					break;
 				case 'f':
+					if (words[i + 2][1] != 'l')
+					{
+						
+					}
+					else
+					{
+						ide->iddatatype = IT::FLT;
+						break;
+					}
+				case '.':
 					ide->idtype = IT::F;
 					ide->countParams = 0;
 					
@@ -702,6 +821,30 @@ void setLexemsAndIds(
 							if (words[j] == "is")
 							{
 								ide->countParams++;
+								ushort itmp = 1;
+
+								if (j + 1 < words.size() && words[j + 1] == "ref")
+								{
+									itmp++;
+								}
+
+								if (
+									j + itmp < words.size() &&
+									(words[j + itmp] == "num" || words[j + itmp] == "symb" || words[j + itmp] == "float"))
+								{
+									if (words[j + itmp] == "num")
+									{
+										ide->params.push_back(itmp == 1 ? "int" : "int&");
+									}
+									else if (words[j + itmp] == "symb")
+									{
+										ide->params.push_back(itmp == 1 ? "char" : "char&");
+									}
+									else if (words[j + itmp] == "float")
+									{
+										ide->params.push_back(itmp == 1 ? "float" : "float&");
+									}
+								}
 							}
 							
 							if (
@@ -715,10 +858,19 @@ void setLexemsAndIds(
 
 						if (
 							words[j + 1] == "is" &&
-							(words[j + 2] == "num" || words[j + 2] == "symb")
+							(words[j + 2] == "num" || words[j + 2] == "symb" || words[j + 2] == "action" || words[j + 2] == "float")
 							)
 						{
-							ide->iddatatype = words[j + 2] == "num" ? IT::NUM : IT::SYMB;
+							if (words[j + 2] == "action")
+							{
+								ide->iddatatype = IT::ACTION;
+							}
+							else
+							{
+								ide->iddatatype = words[j + 2] == "num" ? IT::NUM :
+												  isFloat(words[j + 2]) ? IT::FLT : IT::SYMB;
+							}
+
 						}
 						else
 						{
@@ -751,6 +903,11 @@ void setLexemsAndIds(
 					ide->hasValue = true;
 				}
 
+				if (ide->isRef && ide->idtype != IT::P)
+				{
+					throw ERROR_THROW_IN(618, line, 0);
+				}
+				
 				IT::Add(idtable, *ide);
 
 				delete ide;
@@ -758,7 +915,7 @@ void setLexemsAndIds(
 			else if (
 				words[i - 1] == "(" &&
 				words[i + 1] == "is" &&
-				(words[i + 2] == "num" || words[i + 2] == "symb") &&
+				(words[i + 2] == "num" || words[i + 2] == "symb" || words[i + 2] == "float") &&
 				words[i + 3] == ")" &&
 				words[i + 4] == "?" &&
 				is_id_in_table(idtable, word, scope, fullWord)
@@ -774,7 +931,8 @@ void setLexemsAndIds(
 					
 					if (
 						(ide->iddatatype == IT::NUM && words[i + 2] == "num") ||
-						(ide->iddatatype == IT::SYMB && words[i + 2] == "symb")
+						(ide->iddatatype == IT::SYMB && words[i + 2] == "symb") ||
+						(ide->iddatatype == IT::FLT && words[i + 2] == "float")
 						)
 					{
 						words[i] = "1";
@@ -800,7 +958,7 @@ void setLexemsAndIds(
 			}
 			else if (
 				words[i + 1] == "is" &&
-				(words[i + 2] == "num" || words[i + 2] == "symb" || words[i + 2] == "foo") &&
+				(words[i + 2] == "num" || words[i + 2] == "symb" || words[i + 2] == "float" || words[i + 2] == "foo") &&
 				words[i + 3] != ")" &&
 				in_scope
 				)
@@ -818,6 +976,15 @@ void setLexemsAndIds(
 				ide->idxfirstLE = lextable.size;
 
 				IT::Add(idtable, *ide);
+
+				if (
+					ide->idtype == IT::F &&
+					i + 1 < words.size() &&
+					words[i + 1] != "("
+					)
+				{
+					throw ERROR_THROW_IN(617, line, 0);
+				}
 		
 				delete ide;
 			}
@@ -871,8 +1038,15 @@ bool isLiteral(string word)
 
 	regex regSymb("'[^☺]'");
 	
-	return execute(regNum) || regex_match(word.begin(), word.end(), regSymb);
+	return execute(regNum) || regex_match(word.begin(), word.end(), regSymb) || isFloat(word);
 }
+
+bool isFloat(string word)
+{
+	regex regFloat("[0-9]{0,10}\\.[0-9]{1,23}");
+	return regex_match(word.begin(), word.end(), regFloat);
+}
+
 
 bool isId(string word)
 {
@@ -954,8 +1128,7 @@ bool is_id_in_this_scope(
 
 string getNewWord(string word, stack<string> scope)
 {
-	word += ".";
-	while (!scope.empty())
+	while (!scope.empty() && scope.top() != "")
 	{
 		word += "." + scope.top();
 		scope.pop();
@@ -988,4 +1161,25 @@ void insertToStr(
 
 	string res = before + insertedStr + after;
 	strcpy_s(str, res.c_str());
+}
+
+bool nextIs(string word, vector<string>& words, int i)
+{
+	for (; i < words.size(); i++)
+	{
+		if (words[i] == word)
+		{
+			return true;
+		}
+		else if (words[i] == "\n")
+		{
+			continue;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	return false;
 }

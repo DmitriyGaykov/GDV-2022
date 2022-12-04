@@ -25,17 +25,22 @@ namespace GRB
 #define FOR_BODY 'P'
 #define INIT_FUNC 'T'
 #define DEF_TYPE 'U'
+#define BODY_ACTION 'V'
+#define INIT_ACTION 'W'
 	
 GRB::Greibach greibach(
 	NS(GLOBAL),
 	TS('$'),
-	18, // edit
+	20, // edit
 
 	Rule(NS(GLOBAL), GRB_ERROR_SERIES + 0, // глобальное пространство
-		12,
+		14,
 
 		Rule::Chain(3, TS('i'), NS(INIT_FUNC), NS(GLOBAL)),
 		Rule::Chain(2, TS('i'), NS(INIT_FUNC)),
+
+		Rule::Chain(3, TS('i'), NS(INIT_ACTION), NS(GLOBAL)),
+		Rule::Chain(2, TS('i'), NS(INIT_ACTION)),
 
 		Rule::Chain(5, TS('i'), NS(DEF_TYPE), TS('='), NS(EXPR), TS(';'), NS(GLOBAL)),
 		Rule::Chain(4, TS('i'), NS(DEF_TYPE), TS('='), NS(EXPR), TS(';')),
@@ -59,11 +64,60 @@ GRB::Greibach greibach(
 		Rule::Chain(7, TS('s'), TS('f'), NS(IPARAMS), NS(DEF_TYPE), TS('{'), NS(RETURN), TS('}'))
 	),
 
-	Rule(NS(DEF_TYPE), GRB_ERROR_SERIES + 17,
+	Rule(NS(DEF_TYPE), GRB_ERROR_SERIES + 17, // ошибка при определении типа
 		1,
 		Rule::Chain(2, TS('s'), TS('t'))
 		),
 	
+	/////////////////////////
+	
+	Rule(NS(BODY_ACTION), GRB_ERROR_SERIES + 18, // ошибка в функции типа action
+		24,
+		
+		Rule::Chain(4, TS('i'), NS(DEF_TYPE), TS(';'), NS(BODY_ACTION)),
+		Rule::Chain(3, TS('i'), NS(DEF_TYPE), TS(';')),
+		
+		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';'), NS(BODY_ACTION)),
+		Rule::Chain(5, TS('i'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';')),
+
+		Rule::Chain(5, TS('i'), TS('('), TS(')'), TS(';'), NS(BODY_ACTION)),
+		Rule::Chain(4, TS('i'), TS('('), TS(')'), TS(';')),
+
+		Rule::Chain(6, TS('i'), NS(DEF_TYPE), TS('='), NS(EXPR), TS(';'), NS(BODY_ACTION)),
+		Rule::Chain(5, TS('i'), NS(DEF_TYPE), TS('='), NS(EXPR), TS(';')),
+
+		Rule::Chain(5, TS('i'), TS('='), NS(EXPR), TS(';'), NS(BODY_ACTION)),
+		Rule::Chain(4, TS('i'), TS('='), NS(EXPR), TS(';')),
+
+		Rule::Chain(4, TS('{'), NS(VISAREA), TS('}'), NS(BODY_ACTION)),
+		Rule::Chain(3, TS('{'), NS(VISAREA), TS('}')),
+
+		Rule::Chain(3, TS('{'), TS('}'), NS(BODY_FUNC)),
+		Rule::Chain(2, TS('{'), TS('}')),
+
+		Rule::Chain(4, TS('c'), NS(CONSOLE), TS(';'), NS(BODY_ACTION)),
+		Rule::Chain(3, TS('c'), NS(CONSOLE), TS(';')),
+
+		Rule::Chain(3, TS(FOR), NS(FOR_PARAM), NS(BODY_ACTION)),
+		Rule::Chain(2, TS(FOR), NS(FOR_PARAM)),
+
+		Rule::Chain(8, TS('('), NS(TYPES_VALUES), TS('V'), NS(TYPES_VALUES), TS(')'), TS('?'), NS(IFBODY), NS(BODY_ACTION)),
+		Rule::Chain(7, TS('('), NS(TYPES_VALUES), TS('V'), NS(TYPES_VALUES), TS(')'), TS('?'), NS(IFBODY)),
+
+		Rule::Chain(4, TS('i'), NS(INIT_FUNC), TS(';'), NS(BODY_ACTION)),
+		Rule::Chain(4, TS('i'), NS(INIT_FUNC), TS(';'), NS(RETURN)),
+		
+		Rule::Chain(2, TS('r'), TS(';')),
+		Rule::Chain(3, TS('r'), TS(';'), NS(BODY_ACTION))
+		),
+
+	Rule(NS(INIT_ACTION), GRB_ERROR_SERIES + 19,
+		2,
+		Rule::Chain(8, TS('s'), TS('f'), NS(IPARAMS), TS('s'), TS('a'), TS('{'), NS(BODY_ACTION), TS('}')),
+		Rule::Chain(7, TS('s'), TS('f'), NS(IPARAMS), TS('s'), TS('a'), TS('{'), TS('}'))
+	),
+
+	/////////////////////////
 
 	Rule(NS(EXPR), GRB_ERROR_SERIES + 1, // выражение
 		11,
@@ -104,18 +158,26 @@ GRB::Greibach greibach(
 	),
 
 	Rule(NS(ARGS_CFUNC), GRB_ERROR_SERIES + 5, // параметры вызываемой функции
-		6,
+		8,
 		Rule::Chain(1, TS('i')),
 		Rule::Chain(1, TS('l')),
 		Rule::Chain(4, TS('i'), TS('('), NS(ARGS_CFUNC), TS(')')),
+		Rule::Chain(3, TS('i'), TS('('), TS(')')),
 
 		Rule::Chain(3, TS('i'), TS(','), NS(ARGS_CFUNC)),
 		Rule::Chain(3, TS('l'), TS(','), NS(ARGS_CFUNC)),
-		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(','), NS(ARGS_CFUNC))
+		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(','), NS(ARGS_CFUNC)),
+		Rule::Chain(5, TS('i'), TS('('), TS(')'), TS(','), NS(ARGS_CFUNC))
 	),
 
 	Rule(NS(BODY_FUNC), GRB_ERROR_SERIES + 6, // тело функции
-		20,
+		22,
+		
+		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';'), NS(BODY_FUNC)),
+		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';'), NS(RETURN)),
+
+		Rule::Chain(5, TS('i'), TS('('), TS(')'), TS(';'), NS(BODY_FUNC)),
+		Rule::Chain(5, TS('i'), TS('('), TS(')'), TS(';'), NS(RETURN)),
 		
 		Rule::Chain(4, TS('i'), NS(DEF_TYPE), TS(';'), NS(BODY_FUNC)),
 		Rule::Chain(4, TS('i'), NS(DEF_TYPE), TS(';'), NS(RETURN)),
@@ -132,12 +194,9 @@ GRB::Greibach greibach(
 		Rule::Chain(3, TS('{'), TS('}'), NS(BODY_FUNC)),
 		Rule::Chain(3, TS('{'), TS('}'), NS(RETURN)),
 
-		Rule::Chain(6, TS('c'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';'), NS(BODY_FUNC)),
-		Rule::Chain(6, TS('c'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';'), NS(RETURN)),
-
-		Rule::Chain(5, TS('c'), TS('('), TS(')'), TS(';'), NS(RETURN)),
-		Rule::Chain(5, TS('c'), TS('('), TS(')'), TS(';'), NS(BODY_FUNC)),
-
+		Rule::Chain(4, TS('c'), NS(CONSOLE), TS(';'), NS(BODY_FUNC)),
+		Rule::Chain(4, TS('c'), NS(CONSOLE), TS(';'), NS(RETURN)),
+		
 		Rule::Chain(3, TS(FOR), NS(FOR_PARAM), NS(BODY_FUNC)),
 		Rule::Chain(3, TS(FOR), NS(FOR_PARAM), NS(RETURN)),
 			
@@ -154,7 +213,15 @@ GRB::Greibach greibach(
 	),
 	
 	Rule(NS(IF), GRB_ERROR_SERIES + 8, // условие
-		28,
+		33,
+		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';'), NS(RETURN)),
+		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';'), NS(IF)),
+		Rule::Chain(5, TS('i'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';')),
+
+		Rule::Chain(5, TS('i'), TS('('), TS(')'), TS(';'), NS(RETURN)),
+		Rule::Chain(5, TS('i'), TS('('), TS(')'), TS(';'), NS(IF)),
+		Rule::Chain(4, TS('i'), TS('('), TS(')'), TS(';')),
+		
 		Rule::Chain(4, TS('i'), NS(DEF_TYPE), TS(';'), NS(IF)),
 		Rule::Chain(4, TS('i'), NS(DEF_TYPE), TS(';'), NS(RETURN)),
 		Rule::Chain(3, TS('i'), NS(DEF_TYPE), TS(';')),
@@ -178,19 +245,18 @@ GRB::Greibach greibach(
 		Rule::Chain(4, TS('i'), NS(INIT_FUNC), TS(';'), NS(RETURN)),
 		Rule::Chain(3, TS('i'), NS(INIT_FUNC), TS(';')),
 	
-		Rule::Chain(6, TS('c'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';'), NS(IF)),
-		Rule::Chain(6, TS('c'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';'), NS(RETURN)),
-		Rule::Chain(5, TS('c'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';')),
-		
-		Rule::Chain(5, TS('c'), TS('('), TS(')'), TS(';'), NS(RETURN)),
-		Rule::Chain(5, TS('c'), TS('('), TS(')'), TS(';'), NS(IF)),
-		Rule::Chain(4, TS('c'), TS('('), TS(')'), TS(';')),
+		Rule::Chain(4, TS('c'), NS(CONSOLE), TS(';'), NS(IF)),
+		Rule::Chain(4, TS('c'), NS(CONSOLE), TS(';'), NS(RETURN)),
+		Rule::Chain(3, TS('c'), NS(CONSOLE), TS(';')),
 	
 		Rule::Chain(8, TS('('), NS(TYPES_VALUES), TS('V'), NS(TYPES_VALUES), TS(')'), TS('?'), NS(IFBODY), NS(IF)),
 		Rule::Chain(8, TS('('), NS(TYPES_VALUES), TS('V'), NS(TYPES_VALUES), TS(')'), TS('?'), NS(IFBODY), NS(RETURN)),
 		Rule::Chain(7, TS('('), NS(TYPES_VALUES), TS('V'), NS(TYPES_VALUES), TS(')'), TS('?'), NS(IFBODY)),
 	
-		Rule::Chain(3, TS('r'), NS(EXPR), TS(';'))
+		Rule::Chain(3, TS('r'), NS(EXPR), TS(';')),
+		
+		Rule::Chain(2, TS('b'), TS(';')),
+		Rule::Chain(3, TS('b'), TS(';'), NS(IF))
 	),
 	
 	Rule(NS(RETURN), GRB_ERROR_SERIES + 9, // return
@@ -199,9 +265,10 @@ GRB::Greibach greibach(
 	),
 	
 	Rule(NS(TYPES_VALUES), GRB_ERROR_SERIES + 10, // типы значений
-		3,
+		4,
 		Rule::Chain(1, TS('i')),
 		Rule::Chain(1, TS('l')),
+		Rule::Chain(3, TS('i'), TS('('), TS(')')),
 		Rule::Chain(4, TS('i'), TS('('), NS(ARGS_CFUNC), TS(')'))
 	),
 	
@@ -220,12 +287,21 @@ GRB::Greibach greibach(
 	),
 	
 	Rule(NS(CONSOLE), GRB_ERROR_SERIES + 12, // вызов потока вывода
-		1,
-		Rule::Chain(3, TS('('), NS(TYPES_VALUES), TS(')'))
+		2,
+		Rule::Chain(3, TS('('), NS(ARGS_CFUNC), TS(')')),
+		Rule::Chain(2, TS('('), TS(')'))
 	),
 	
 	Rule(NS(VISAREA), GRB_ERROR_SERIES + 13, // тело функции
-		28,
+		33,
+		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';'), NS(VISAREA)),
+		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';'), NS(RETURN)),
+		Rule::Chain(5, TS('i'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';')),
+
+		Rule::Chain(5, TS('i'), TS('('), TS(')'), TS(';'), NS(VISAREA)),
+		Rule::Chain(5, TS('i'), TS('('), TS(')'), TS(';'), NS(RETURN)),
+		Rule::Chain(4, TS('i'), TS('('), TS(')'), TS(';')),
+
 		Rule::Chain(4, TS('i'), NS(DEF_TYPE), TS(';'), NS(VISAREA)),
 		Rule::Chain(4, TS('i'), NS(DEF_TYPE), TS(';'), NS(RETURN)),
 		Rule::Chain(3, TS('i'), NS(DEF_TYPE), TS(';')),
@@ -250,17 +326,16 @@ GRB::Greibach greibach(
 		Rule::Chain(4, TS('i'), NS(INIT_FUNC), TS(';'), NS(RETURN)),
 		Rule::Chain(3, TS('i'), NS(INIT_FUNC), TS(';')),
 	
-		Rule::Chain(6, TS('c'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';'), NS(VISAREA)),
-		Rule::Chain(6, TS('c'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';'), NS(RETURN)),
-		Rule::Chain(5, TS('c'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';')),
-		
-		Rule::Chain(5, TS('c'), TS('('), TS(')'), TS(';'), NS(RETURN)),
-		Rule::Chain(5, TS('c'), TS('('), TS(')'), TS(';'), NS(VISAREA)),
-		Rule::Chain(4, TS('c'), TS('('), TS(')'), TS(';')),
+		Rule::Chain(4, TS('c'), NS(CONSOLE), TS(';'), NS(VISAREA)),
+		Rule::Chain(4, TS('c'), NS(CONSOLE), TS(';'), NS(RETURN)),
+		Rule::Chain(2, TS('c'), NS(CONSOLE), TS(';')),
 	
 		Rule::Chain(8, TS('('), NS(TYPES_VALUES), TS('V'), NS(TYPES_VALUES), TS(')'), TS('?'), NS(IFBODY), NS(VISAREA)),
 		Rule::Chain(8, TS('('), NS(TYPES_VALUES), TS('V'), NS(TYPES_VALUES), TS(')'), TS('?'), NS(IFBODY), NS(RETURN)),
 		Rule::Chain(7, TS('('), NS(TYPES_VALUES), TS('V'), NS(TYPES_VALUES), TS(')'), TS('?'), NS(IFBODY)),
+
+		Rule::Chain(2, TS('b'), TS(';')),
+		Rule::Chain(3, TS('b'), TS(';'), NS(VISAREA)),
 	
 		Rule::Chain(3, TS('r'), NS(EXPR), TS(';'))
 	),
@@ -271,47 +346,43 @@ GRB::Greibach greibach(
 	),
 	
 	Rule(NS(FOR_BODY), GRB_ERROR_SERIES + 15, // Ошибка в теле цикла For
-		29,
+		25,
+
+		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';'), NS(FOR_BODY)),
+		Rule::Chain(5, TS('i'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';')),
+
+		Rule::Chain(5, TS('i'), TS('('), TS(')'), TS(';'), NS(FOR_BODY)),
+		Rule::Chain(4, TS('i'), TS('('), TS(')'), TS(';')),
+
 		Rule::Chain(4, TS('i'), NS(DEF_TYPE), TS(';'), NS(FOR_BODY)),
-		Rule::Chain(5, TS('i'), NS(DEF_TYPE), TS(';'), NS(RETURN), NS(FOR_BODY)),
 		Rule::Chain(3, TS('i'), NS(DEF_TYPE), TS(';')),
 	
 		Rule::Chain(6, TS('i'), NS(DEF_TYPE), TS('='), NS(EXPR), TS(';'), NS(FOR_BODY)),
-		Rule::Chain(7, TS('i'), NS(DEF_TYPE), TS('='), NS(EXPR), TS(';'), NS(RETURN), NS(FOR_BODY)),
 		Rule::Chain(5, TS('i'), NS(DEF_TYPE), TS('='), NS(EXPR), TS(';')),
 	
 		Rule::Chain(5, TS('i'), TS('='), NS(EXPR), TS(';'), NS(FOR_BODY)),
-		Rule::Chain(6, TS('i'), TS('='), NS(EXPR), TS(';'), NS(RETURN), NS(FOR_BODY)),
 		Rule::Chain(4, TS('i'), TS('='), NS(EXPR), TS(';')),
 	
 		Rule::Chain(4, TS('{'), NS(FOR_BODY), TS('}'), NS(FOR_BODY)),
-		Rule::Chain(5, TS('{'), NS(FOR_BODY), TS('}'), NS(RETURN), NS(FOR_BODY)),
 		Rule::Chain(3, TS('{'), NS(FOR_BODY), TS('}')),
 		Rule::Chain(2, TS('{'), TS('}')),
 		Rule::Chain(3, TS('{'), TS('}'), NS(FOR_BODY)),
 		Rule::Chain(4, TS('{'), TS('}'), NS(RETURN), NS(FOR_BODY)),
 	
 		Rule::Chain(4, TS('i'), NS(INIT_FUNC), TS(';'), NS(FOR_BODY)),
-		Rule::Chain(5, TS('i'), NS(INIT_FUNC), TS(';'), NS(RETURN), NS(FOR_BODY)),
 		Rule::Chain(3, TS('i'), NS(INIT_FUNC), TS(';')),
 	
-		Rule::Chain(6, TS('c'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';'), NS(FOR_BODY)),
-		Rule::Chain(6, TS('c'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';'), NS(RETURN)),
-		Rule::Chain(5, TS('c'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';')),
-	
-		Rule::Chain(5, TS('c'), TS('('), TS(')'), TS(';'), NS(RETURN)),
-		Rule::Chain(5, TS('c'), TS('('), TS(')'), TS(';'), NS(FOR_BODY)),
-		Rule::Chain(4, TS('c'), TS('('), TS(')'), TS(';')),
-	
+		Rule::Chain(4, TS('c'), NS(CONSOLE), TS(';'), NS(FOR_BODY)),
+		Rule::Chain(3, TS('c'), NS(CONSOLE), TS(';')),
+
 		Rule::Chain(3, TS(FOR), NS(FOR_PARAM), NS(FOR_BODY)),
-		Rule::Chain(4, TS(FOR), NS(FOR_PARAM), NS(RETURN), NS(FOR_BODY)),
 		Rule::Chain(2, TS(FOR), NS(FOR_PARAM)),
 
 		Rule::Chain(8, TS('('), NS(TYPES_VALUES), TS('V'), NS(TYPES_VALUES), TS(')'), TS('?'), NS(IFBODY), NS(FOR_BODY)),
-		Rule::Chain(9, TS('('), NS(TYPES_VALUES), TS('V'), NS(TYPES_VALUES), TS(')'), TS('?'), NS(IFBODY), NS(RETURN), NS(FOR_BODY)),
 		Rule::Chain(7, TS('('), NS(TYPES_VALUES), TS('V'), NS(TYPES_VALUES), TS(')'), TS('?'), NS(IFBODY)),
 
-		Rule::Chain(3, TS('r'), NS(EXPR), TS(';'))
+		Rule::Chain(2, TS('b'), TS(';')),
+		Rule::Chain(3, TS('b'), TS(';'), NS(FOR_BODY))
 		)
 	);
 	

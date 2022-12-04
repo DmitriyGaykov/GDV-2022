@@ -7,23 +7,23 @@ using namespace std;
 #include "..\\LIB\\framework.h"
 
 
+void process(int& a_process)
+{
+	a_process = sum((int)a_process, (int)a_process);
+	
+}
+char func(int a_func)
+{
+	return a_func;
+	
+}
 int main()
 {
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
 
-	auto Fact__l0_main_ = [&](int a__Fact_l0_main_)
-	{
-		int fact__Fact_l0_main_ = 1;
-		For(1, a__Fact_l0_main_, 1, [&](int i__Fact_l0_main_)
-		{
-			fact__Fact_l0_main_ = mult(fact__Fact_l0_main_, i__Fact_l0_main_);
-			
-		}
-		);
-		return fact__Fact_l0_main_;
-		
-	}	;
+	int a_l1_main = 2;
+	char res_l1_main = func((int)sum((int)1, (int)mult((float)2.2f, (float)func((int)a_l1_main))));
 	return 0;
 	
 }

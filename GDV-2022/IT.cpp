@@ -24,6 +24,7 @@ namespace IT
 		pEn->iddatatype = IT::NUM;
 		pEn->idtype = IT::F;
 		pEn->countParams = 2;
+		pEn->isFromStatic = true;
 		
 		Add(idtable, *pEn);
 		

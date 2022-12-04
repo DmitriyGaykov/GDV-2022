@@ -24,5 +24,7 @@ typedef unsigned short ushort;
 #include "Out.h"
 #include "LT.h"
 #include "IT.h"
+#include "Semantic.h"
 #include "Analize.h"
 #include "Polish.h"
+#include "stdafx.h"

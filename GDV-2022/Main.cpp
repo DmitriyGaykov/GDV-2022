@@ -49,6 +49,8 @@ int main(int argc, _TCHAR* argv[])
 		
 		cout << endl << endl;
 		
+		checkSemantic(lextable, idtable);
+
 		GEN::Generate(lextable, idtable);
 
 		Log::WriteLog(log); // запись в лог

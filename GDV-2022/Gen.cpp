@@ -278,10 +278,37 @@ namespace GEN
 				}
 				else
 				{
-					fout << '\'' << edi->value.vsymb << '\'';
+					char symb = edi->value.vsymb;
+					string w = "";
+					
+					switch (symb)
+					{
+					case '\n':
+						w = "\\n";
+						break;
+					case '\t':
+						w = "\\t";
+						break;
+					case '\'':
+						w = "\\'";
+						break;
+					case '\\':
+						w = "\\\\";
+						break;
+					default:
+						w = symb;
+					}
+
+					fout << '\'' << w << '\'';
 				}
 				
 				delete edi;
+				break;
+			}
+
+			case 's':
+			{
+				fout << "return false;\n";
 				break;
 			}
 

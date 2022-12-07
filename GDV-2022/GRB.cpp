@@ -42,8 +42,8 @@ GRB::Greibach greibach(
 		Rule::Chain(3, TS('i'), NS(INIT_ACTION), NS(GLOBAL)),
 		Rule::Chain(2, TS('i'), NS(INIT_ACTION)),
 
-		Rule::Chain(5, TS('i'), NS(DEF_TYPE), TS('='), NS(EXPR), TS(';'), NS(GLOBAL)),
-		Rule::Chain(4, TS('i'), NS(DEF_TYPE), TS('='), NS(EXPR), TS(';')),
+		Rule::Chain(6, TS('i'), NS(DEF_TYPE), TS('='), NS(EXPR), TS(';'), NS(GLOBAL)),
+		Rule::Chain(5, TS('i'), NS(DEF_TYPE), TS('='), NS(EXPR), TS(';')),
 
 		Rule::Chain(4, TS('i'), NS(DEF_TYPE), TS(';'), NS(GLOBAL)),
 		Rule::Chain(3, TS('i'), NS(DEF_TYPE), TS(';')),
@@ -346,7 +346,7 @@ GRB::Greibach greibach(
 	),
 	
 	Rule(NS(FOR_BODY), GRB_ERROR_SERIES + 15, // Ошибка в теле цикла For
-		25,
+		27,
 
 		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';'), NS(FOR_BODY)),
 		Rule::Chain(5, TS('i'), TS('('), NS(ARGS_CFUNC), TS(')'), TS(';')),
@@ -382,8 +382,12 @@ GRB::Greibach greibach(
 		Rule::Chain(7, TS('('), NS(TYPES_VALUES), TS('V'), NS(TYPES_VALUES), TS(')'), TS('?'), NS(IFBODY)),
 
 		Rule::Chain(2, TS('b'), TS(';')),
-		Rule::Chain(3, TS('b'), TS(';'), NS(FOR_BODY))
+		Rule::Chain(3, TS('b'), TS(';'), NS(FOR_BODY)),
+
+		Rule::Chain(2, TS('s'), TS(';'),
+		Rule::Chain(3, TS('s'), TS(';'), NS(FOR_BODY))
 		)
+	)
 	);
 	
 	Rule::Chain::Chain(short psize, GRBALPHABET s, ...)	///I?aano. oaii?ee (i?aaay noi?iia i?aaeea)

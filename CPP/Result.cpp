@@ -12,18 +12,27 @@ void process(int& a_process)
 	a_process = sum((int)a_process, (int)a_process);
 	
 }
-char func(int a_func)
+char func(int& a_func)
 {
+	a_func = 23;
 	return a_func;
 	
 }
+int a = 2111;
 int main()
 {
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
 
-	int a_l1_main = 2;
-	char res_l1_main = func((int)sum((int)1, (int)mult((float)2.2f, (float)func((int)a_l1_main))));
+	For((int)1, (int)func((int&)a), 2, [&](int el_For1_l1_main)
+	{
+		cout << el_For1_l1_main << ' ';
+		return false;
+;
+		
+	
+		return false;
+	});
 	return 0;
 	
 }

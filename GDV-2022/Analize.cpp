@@ -1,5 +1,8 @@
 ﻿#include "Analize.h"
+#include "Check.h"
 using namespace fst;
+
+using CHECK::check;
 
 #define BLOCK_SLASH_N
 #define PARAMETR_OF_LYMBDA 'o'
@@ -16,7 +19,7 @@ void LexAnalize(
 		" pow is foo(number is num, power is num) is num { result => 1; For(1, power, 1, i => { result = mult(result, number); }); return result;\}"},
 
 		{"symb_to_num",
-		"symb_to_num is foo(s is symb) is num{(s == '0') ?Truth{return 0;}(s == '1') ?Truth{return 1;}(s == '2') ?Truth{return 2;}(s == '3') ?Truth{return 3;}(s == '4') ?Truth{return 4;}(s == '5') ?Truth{return 5;}(s == '6') ?Truth{return 6;}(s == '7') ?Truth{return 7;}(s == '8') ?Truth{return 8;}(s == '9') ?Truth{return 9;}return s;}"},
+		"symb_to_num is foo(s is symb) is num{(s == '0') ?Truth{return 0;}(s == '1') ? Truth{return 1;}(s == '2') ?Truth{return 2;}(s == '3') ?Truth{return 3;}(s == '4') ?Truth{return 4;}(s == '5') ?Truth{return 5;}(s == '6') ?Truth{return 6;}(s == '7') ?Truth{return 7;}(s == '8') ?Truth{return 8;}(s == '9') ?Truth{return 9;}return s;}"},
 		
 		{"abs",
 		"abs is foo(number is num) is num{(number < 0) ? Truth { return mult(number, -1);}return number;}"}
@@ -105,19 +108,57 @@ void LexAnalize(
 
 					words.push_back(word);
 				}
-				else if (symb == '\'')
+				else if (symb == '\'' && i + 3 < strlen(text))
 				{
-					if (text[i + 2] != '\'')
-					{
-						throw ERROR_THROW_IN(600, line, 0);
-					}
-
 					word += symb;
-					word += text[i + 1];
-					word += text[i + 2];
+					
+					if (text[i + 1] != '\\')
+					{
+						if (text[i + 2] != '\'')
+						{
+							throw ERROR_THROW_IN(600, line, 0);
+						}
+						
+						word += text[i + 1];
+						
+						word += text[i + 2];
 
-					i += 2;
+						i += 2;
+					}
+					else
+					{
+						if (text[i + 2] == '\'')
+						{
+							word += text[i + 1];
+							word += text[i + 2];
+							i += 2;
+						}
+						else
+						{
+							if (text[i + 3] != '\'')
+							{
+								throw ERROR_THROW_IN(600, line, 0);
+							}
 
+							switch (text[i + 2])
+							{
+							case 'n':
+								word += '\n';
+								break;
+							case 't':
+								word += '\t';
+								break;
+							case 'r':
+								word += '\r';
+								break;
+							default:
+								throw ERROR_THROW_IN(621, line, 0);
+							}
+
+							word += text[i + 3];
+							i += 3;
+						}
+					}
 					words.push_back(word);
 				}
 				else if (
@@ -193,9 +234,8 @@ void setLexemsAndIds(
 	int indexOfScope = 0;
 	scope.push("");
 
-	// TODO: доделать с идентификаторам в =
-	// TODO: доделать с вычислением идентификатора
-
+	CHECK::Checker checker;
+	
 	for (int i = 0; i < words.size(); i++)
 	{
 		lexe.view = 0;
@@ -329,7 +369,7 @@ void setLexemsAndIds(
 			words.insert(words.begin() + i + 3, "=");
 		}
 
-		if (word == "is")
+		if (check(checker._is, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = 's';
@@ -351,7 +391,7 @@ void setLexemsAndIds(
 			}
 		}
 
-		else if (word == "num")
+		else if (check(checker._num, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = 't';
@@ -360,7 +400,7 @@ void setLexemsAndIds(
 			LT::Add(lextable, lexe);
 		}
 
-		else if (word == "break")
+		else if (check(checker._break, word.c_str()))
 		{
 			if (!isFor.top())
 			{
@@ -373,7 +413,7 @@ void setLexemsAndIds(
 			LT::Add(lextable, lexe);
 		}
 
-		else if (word == "For")
+		else if (check(checker._for, word.c_str()))
 		{
 			scope.push("For" + to_string(countScopes++));
 			lexe.lexema = FOR;
@@ -412,7 +452,7 @@ void setLexemsAndIds(
 			LT::Add(lextable, lexe);
 		}
 		
-		else if (word == "symb")
+		else if (check(checker._symb, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = 't';
@@ -421,7 +461,7 @@ void setLexemsAndIds(
 			LT::Add(lextable, lexe);
 		}
 
-		else if (word == "float")
+		else if (check(checker._float, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = 't';
@@ -430,7 +470,7 @@ void setLexemsAndIds(
 			LT::Add(lextable, lexe);
 		}
 
-		else if (word == "action")
+		else if (check(checker._action, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = 'a';
@@ -438,8 +478,17 @@ void setLexemsAndIds(
 
 			LT::Add(lextable, lexe);
 		}
+
+		else if (check(checker._skip, word.c_str()))
+		{
+			lexe.idxTI = -1;
+			lexe.lexema = 's';
+			lexe.sn = line;
+			
+			LT::Add(lextable, lexe);	
+		}
 		
-		else if (word == "=" )
+		else if (check(checker._equalinit, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = '=';
@@ -487,7 +536,7 @@ void setLexemsAndIds(
 			}
 		}
 
-		else if (word == "console")
+		else if (check(checker._console, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = 'c';
@@ -496,7 +545,7 @@ void setLexemsAndIds(
 			LT::Add(lextable, lexe);
 		}
 
-		else if (word == "foo")
+		else if (check(checker._foo, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = 'f';
@@ -519,7 +568,7 @@ void setLexemsAndIds(
 			delete ide;
 		}
 
-		else if (word == "(")
+		else if (check(checker._leftscope, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = '(';
@@ -528,7 +577,7 @@ void setLexemsAndIds(
 			LT::Add(lextable, lexe);
 		}
 
-		else if (word == ")")
+		else if (check(checker._rightscope, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = ')';
@@ -537,7 +586,7 @@ void setLexemsAndIds(
 			LT::Add(lextable, lexe);
 		}
 
-		else if (word == "{")
+		else if (check(checker._leftbracket, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = '{';
@@ -558,7 +607,7 @@ void setLexemsAndIds(
 			}
 		}
 
-		else if (word == "}")
+		else if (check(checker._rightbracket, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = '}';
@@ -591,7 +640,7 @@ void setLexemsAndIds(
 			}
 		}
 
-		else if (word == ",")
+		else if (check(checker._comma, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = ',';
@@ -600,11 +649,7 @@ void setLexemsAndIds(
 			LT::Add(lextable, lexe);
 		}
 
-		else if (
-			word == ">" ||
-			word == "<" ||
-			word == "==" ||
-			word == "!=")
+		else if (check(checker._allequalsigns, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = 'V';
@@ -614,10 +659,7 @@ void setLexemsAndIds(
 			LT::Add(lextable, lexe);
 		}
 
-		else if (
-			word == "&" ||
-			word == "|"
-			)
+		else if (check(checker._boperations, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = 'v';
@@ -627,9 +669,7 @@ void setLexemsAndIds(
 			LT::Add(lextable, lexe);
 		}
 
-		else if (
-			word == "-"
-		)
+		else if (check(checker._minus, word.c_str()))
 		{
 			if (
 				i + 1 < words.size() &&
@@ -644,7 +684,7 @@ void setLexemsAndIds(
 			}
 		}
 
-		else if (word == "~")
+		else if (check(checker._not, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = '~';
@@ -654,7 +694,7 @@ void setLexemsAndIds(
 			LT::Add(lextable, lexe);
 		}
 
-		else if (word == "main")
+		else if (check(checker._main, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = 'm';
@@ -665,7 +705,7 @@ void setLexemsAndIds(
 			scope.push("main");
 		}
 
-		else if (word == "return")
+		else if (check(checker._return, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = 'r';
@@ -674,7 +714,7 @@ void setLexemsAndIds(
 			LT::Add(lextable, lexe);
 		}
 
-		else if (word == "?")
+		else if (check(checker._if, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = '?';
@@ -683,7 +723,7 @@ void setLexemsAndIds(
 			LT::Add(lextable, lexe);
 		}
 
-		else if (word == "Truth")
+		else if (check(checker._truth, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = 'T';
@@ -692,7 +732,7 @@ void setLexemsAndIds(
 			LT::Add(lextable, lexe);
 		}
 
-		else if (word == "Lie")
+		else if (check(checker._lie, word.c_str()))
 		{
 			lexe.idxTI = -1;
 			lexe.lexema = 'L';
@@ -974,6 +1014,15 @@ void setLexemsAndIds(
 				*ide = IT::GetEntry(idtable, index);
 
 				ide->idxfirstLE = lextable.size;
+				
+				if (ide->idtype == IT::F && !nextIs("(", words, i + 1))
+				{
+					throw ERROR_THROW_IN(620, line, 0);
+				}
+				else if (ide->idtype != IT::F && nextIs("(", words, i + 1))
+				{
+					words.insert(words.begin() + i + 1, "&");
+				}
 
 				IT::Add(idtable, *ide);
 
@@ -1066,7 +1115,7 @@ bool is_id_in_table(
 
 	index = IT::IsId(idtable, (char*)word.c_str());
 
-	if (index != TI_NULLIDX)
+	if (index != TI_NULLIDX && (word == "sum" || word == "mult" || word == "division" || word == "minus"))
 	{
 		if (fullWord != nullptr)
 		{

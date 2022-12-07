@@ -1,25 +1,22 @@
-
-* Сделать:
-* сделать проверку на ограничения в числе
-* сделать проверку на то, что нельзя был присвоить функцию, как значение
-* сделать проверку параметров. Ссылки только идентификаторы
-* область видимости с action
-* приведение типов. С литералами не работает
-
 process is foo(a is ref num) is action
 {
 	a = sum(a, a);
 }
 
-func is foo(a is num) is float
+func is foo(a is ref num) is float
 {
+	a = 23;
 	return a;
 }
 
-main 
+a => 2111;
+main
 {
-	a => 2;
-	res => func(sum(1, mult(2.2, func(a))));
+
+	For(1, func(a), 2, el => {
+		console(el, ' ');
+		skip;
+	});
 	
 	* Fact is foo(a is num) is num
 	* {

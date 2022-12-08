@@ -1,33 +1,27 @@
-process is foo(a is ref num) is action
+dasha is foo(a is ref float) is action
 {
-	a = sum(a, a);
+	(a > 2) ?
+	Truth
+	{
+		a = 2;
+	}
+	
+	(a == 23) ?
+	Truth
+	{
+		a = sum(23, 1);
+	}
+
+	console(`A теперь имеет значение: `, a);
 }
 
-func is foo(a is ref num) is float
-{
-	a = 23;
-	return a;
-}
-
-a => 2111;
 main
 {
-
-	For(1, func(a), 2, el => {
-		console(el, ' ');
-		skip;
-	});
+	a => -2222222222222222220000000000000000.23;
 	
-	* Fact is foo(a is num) is num
-	* {
-	* 	fact => 1;
-	* 
-	* 	For(1, a, 1, i => {
-	* 		fact = mult(fact, i);
-	* 	});
-	* 
-	* 	return fact;
-	* };
+	char => '$';
+
+	b => a & 2.3 | 1 | ~23;
 	
 	return 0;
 }

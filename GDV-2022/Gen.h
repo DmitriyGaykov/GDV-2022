@@ -20,7 +20,8 @@ namespace GEN
 {
 	bool Generate( // запустить генерацию кода
 		LT::LexTable& lextable, // таблица лексем
-		IT::IdTable& idtable // таблица идентификаторов
+		IT::IdTable& idtable, // таблица идентификаторов
+		Parm::PARM& parm // параметры командной строки
 	);
 
 	void changeDoth(char* str); // заменить точки в строке

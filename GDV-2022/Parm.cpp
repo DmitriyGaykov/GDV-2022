@@ -34,17 +34,17 @@ namespace Parm
 
 		for (short i = 0; i < cnt; i++)
 		{
-			if (regex_match(args[i], args[i] + strlen(args[i]), regex("-in:([A-Z]|[a-z]|[0-9]|_)*.txt")))
+			if (regex_match(args[i], args[i] + strlen(args[i]), regex("-in:([^-])*.txt")))
 			{
 				isIN = true;
 				translate(args[i], p.in, 4);
 			}
-			else if (regex_match(args[i], args[i] + strlen(args[i]), regex("-out:([A-Z]|[a-z]|[0-9]|_)*.txt")))
+			else if (regex_match(args[i], args[i] + strlen(args[i]), regex("-out:([^-])*.cpp")))
 			{
 				isOUT = true;
 				translate(args[i], p.out, 5);
 			}
-			else if (regex_match(args[i], args[i] + strlen(args[i]), regex("-log:([A-Z]|[a-z]|[0-9]|_)*.txt")))
+			else if (regex_match(args[i], args[i] + strlen(args[i]), regex("-log:([^-])*.txt")))
 			{
 				isLOG = true;
 				translate(args[i], p.log, 5);

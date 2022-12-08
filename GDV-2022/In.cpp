@@ -36,6 +36,7 @@ namespace In
 		this->code[(unsigned int)'-'] = IN::T;
 		this->code[(unsigned int)'.'] = IN::T;
 		this->code[(unsigned int)':'] = IN::T;
+		this->code[(unsigned int)'`'] = IN::T;
 		this->code[(unsigned int)'%'] = IN::T;
 		this->code[(unsigned int)'!'] = IN::T;
 		this->code[(unsigned int)'"'] = IN::T;

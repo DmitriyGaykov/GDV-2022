@@ -1,42 +1,26 @@
-
-* —делать:
-* сделать проверку на ограничени€ в числе
-* сделать проверку на то, что нельз€ был присвоить функцию, как значение
-* область видимости с action
-* приведение типов. — литералами не работает
-
-* + сделать проверку параметров. —сылки только идентификаторы
-
-process is foo(a is ref num) is action
+dasha is foo(a is ref float) is action
 {
-	a = sum(a, a);
+	(a > 2) ?
+	Truth
+	{
+		a = 2;
+	}
+	
+	(a == 23) ?
+	Truth
+	{
+		a = sum(23, 1);
+	}
+
+	console(`A теперь имеет значение: `, a);
 }
 
-func is foo(a is ref num) is float
-{
-	a = 23;
-	return a;
-}
-
-a => 2111;
 main
 {
+	a => 2.232;
 
-	For(1, func(a), 2, el => {
-		console(el, ' ');
-		skip;
-	});
-	
-	* Fact is foo(a is num) is num
-	* {
-	* 	fact => 1;
-	* 
-	* 	For(1, a, 1, i => {
-	* 		fact = mult(fact, i);
-	* 	});
-	* 
-	* 	return fact;
-	* };
+	dasha(a);
 	
 	return 0;
 }
+

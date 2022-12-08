@@ -74,7 +74,7 @@ namespace fst
 				if (
 					i + 1 == strlen(str) &&
 					isLastState(fst.rstates, nRStates, fst.nstates))
-				{
+				{       
 					return true;
 				}
 			}

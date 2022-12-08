@@ -152,7 +152,7 @@ using namespace fst;
 
 #define CHECK_TRUTH (char*)"",\
 					6,\
-					NODE(1, RELATION('t', 1)),\
+					NODE(1, RELATION('T', 1)),\
 					NODE(1, RELATION('r', 2)),\
 					NODE(1, RELATION('u', 3)),\
 					NODE(1, RELATION('t', 4)),\
@@ -161,7 +161,7 @@ using namespace fst;
 
 #define CHECK_LIE (char*)"",\
 				  4,\
-				  NODE(1, RELATION('l', 1)),\
+				  NODE(1, RELATION('L', 1)),\
 				  NODE(1, RELATION('i', 2)),\
 				  NODE(1, RELATION('e', 3)),\
 				  NODE()

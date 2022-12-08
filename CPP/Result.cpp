@@ -7,32 +7,29 @@ using namespace std;
 #include "..\\LIB\\framework.h"
 
 
-void process(int& a_process)
+void dasha(float& a_dasha)
 {
-	a_process = sum((int)a_process, (int)a_process);
+	if (a_dasha > 2)
+	{
+		a_dasha = 2;
+		
+	}
+	if (a_dasha == 23)
+	{
+		a_dasha = sum((int)23, (int)1);
+		
+	}
+	cout << "A теперь имеет значение: " << a_dasha;
 	
 }
-char func(int& a_func)
-{
-	a_func = 23;
-	return a_func;
-	
-}
-int a = 2111;
 int main()
 {
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
 
-	For((int)1, (int)func((int&)a), 2, [&](int el_For1_l1_main)
-	{
-		cout << el_For1_l1_main << ' ';
-		return false;
-;
-		
-	
-		return false;
-	});
+	float a_l3_main = -2.22222e+33;
+	char char_l3_main = '$';
+	float b_l3_main = (int)a_l3_main & (int)2.3 | 1 | ~23;
 	return 0;
 	
 }

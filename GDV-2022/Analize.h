@@ -11,6 +11,8 @@ void LexAnalize( // функция для выполнения лексического анализа
 
 string toString(char* str); // перевод строки char в строку string
 
+void check_id_size(string& id); // проверка на длину идентификатора
+
 bool isFloat(string word); // проверка на float
 
 void insertToStr( // вставить в строку текст
@@ -26,6 +28,8 @@ void setLexemsAndIds( // разбиение строки на лексемы и идентификаторы
 	IT::IdTable& idtable); // таблица идентификаторов
 
 bool isLiteral(string word); // проверяет слово, является ли оно литералом
+
+bool isStr(string word); // проверяет слово, является ли оно строкой
 
 bool isId(string word); // проверяет слово, является ли оно идентификатором
 

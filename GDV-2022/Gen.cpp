@@ -4,11 +4,11 @@ namespace GEN
 {
 	bool Generate(
 		LT::LexTable& lextable, 
-		IT::IdTable& idtable 
+		IT::IdTable& idtable,
+		Parm::PARM& parm
 	)
 	{
-		const string PATH = "..\\CPP\\Result.cpp";
-		ofstream fout(PATH);
+		ofstream fout(parm.out);
 		IT::Entry* edi;
 		IT::Entry* tedi;
 		IT::Entry* t2edi;
@@ -274,7 +274,15 @@ namespace GEN
 				}
 				else if (edi->iddatatype == IT::FLT)
 				{
-					fout << (edi->needToInt ? "(int)" : "") << edi->value.vflt << "f";
+					fout << (edi->needToInt ? "(int)" : "") << edi->value.vflt/* << "f"*/;
+				}
+				else if (edi->iddatatype == IT::STR)
+				{
+					if (!isConsole)
+					{
+						throw ERROR_THROW_IN(622, lextable.table[i].sn, 0);
+					}
+					fout << '"' << edi->value.vstr << '"';
 				}
 				else
 				{

@@ -1,7 +1,9 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <iostream>
 
+#define ID_MAX_SIZE 50 // максимальная длина идентификатора
 #define ID_MAXSIZE 450 // максимальное количество символов в идентификаторе
 #define TI_MAXSIZE 4096 // максимальное количество записей в таблице идентификаторов
 #define TI_INT_DEFAULT 0x00000000 // значение по умолчанию для типа integer
@@ -16,7 +18,8 @@ namespace IT
 		NUM = 1,
 		SYMB = 2,
 		FLT = 3,
-		ACTION,
+		ACTION = 4,
+		STR = 5
 	};
 
 	enum IDTYPE // типы идентификаторов
@@ -50,7 +53,7 @@ namespace IT
 
 			float vflt; // значение типа float
 
-		
+			char vstr[255]; // значение типа string
 		} value;
 
 		Entry()

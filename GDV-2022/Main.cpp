@@ -18,7 +18,7 @@ int main(int argc, _TCHAR* argv[])
 		IT::IdTable idtable = IT::Create(in.size); // создание таблицы идентификаторов
 		
 		LexAnalize(in, lextable, idtable);
-		
+
 		cout << endl;
 
 		for (int i = 0; i < lextable.size; i++)
@@ -51,7 +51,7 @@ int main(int argc, _TCHAR* argv[])
 		
 		checkSemantic(lextable, idtable);
 
-		GEN::Generate(lextable, idtable);
+		GEN::Generate(lextable, idtable, parm);
 
 		Log::WriteLog(log); // запись в лог
 
@@ -60,9 +60,6 @@ int main(int argc, _TCHAR* argv[])
 		Log::WriteIn(log, in); // запись процесса обработки входных данных
 
 		Log::Close(log); // закрытие лога
-
-		Out::OUT out(parm.out);
-		out.Write((char*)in.text);
 	}
 	catch (Error::ERROR e)
 	{

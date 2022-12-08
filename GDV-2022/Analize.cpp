@@ -96,6 +96,24 @@ void LexAnalize(
 					
 					word = "";
 				}
+				else if (symb == '`')
+				{
+					word += symb;
+					int j = i + 1;
+					while (text[j] != '`')
+					{
+						word += text[j];
+						j++;
+						
+						if (j == strlen(text))
+						{
+							throw ERROR_THROW(622);
+						}
+					}
+					word += text[j];
+					words.push_back(word);
+					i = j;
+				}
 				else if (
 					symb == '=' &&
 					text[i + 1] == '>'
@@ -250,6 +268,7 @@ void setLexemsAndIds(
 			bool in_table = is_id_in_table(idtable, words[i], scope);
 			bool in_scope = is_id_in_this_scope(idtable, words[i], scope);
 			ide = new IT::Entry();
+			
 			if (isLiteral(words[i]))
 			{
 				throw ERROR_THROW_IN(612,line, 0);
@@ -261,6 +280,7 @@ void setLexemsAndIds(
 				word = getNewWord(word, scope);
 				
 				strcpy_s(ide->id, word.c_str());
+				
 				ide->hasValue = true;
 				ide->idtype = IT::P;
 				ide->idxfirstLE = lextable.size;
@@ -280,10 +300,16 @@ void setLexemsAndIds(
 
 				if (isId(words[j]))
 				{
-					if ((index = IT::IsId(idtable, (char*)words[j].c_str()) != TI_NULLIDX))
+					is_id_in_table(idtable, word, scope, fullWord);
+					
+					if ((index = IT::IsId(idtable, (char*)fullWord->c_str()) != TI_NULLIDX))
 					{
 						*tempId = IT::GetEntry(idtable, index);
 						ide->iddatatype = tempId->iddatatype;
+					}
+					else
+					{
+						throw ERROR_THROW_IN(609, line, 0);
 					}
 				}
 				else if (isLiteral(words[j]))
@@ -314,7 +340,6 @@ void setLexemsAndIds(
 			
 			delete ide;
 			continue;
-			
 		}
 		else if (
 			i + 1 < words.size() &&
@@ -434,17 +459,19 @@ void setLexemsAndIds(
 			j--; // i/l,el 
 			j--; // i/l,
 			j--; // i/l
+		
+			is_id_in_table(idtable, words[j], scope, fullWord);
 			
 			if (isLiteral(words[j]))
 			{
-				lexe.view = words[j][0] == '\'' ? 's' : isFloat(words[j]) ? 'f' : 'n';
+				lexe.view = (words[j][0] == '\'' ? 's' : isFloat(words[j]) ? 'f' : 'n');
 			}
-			else if ((index = IT::IsId(idtable, (char*)words[j].c_str()) != TI_NULLIDX))
+			else if ((index = IT::IsId(idtable, (char*)fullWord->c_str())) != TI_NULLIDX)
 			{
 				tempId = new IT::Entry();
 				
 				*tempId = IT::GetEntry(idtable, index);
-				lexe.view = tempId->iddatatype == IT::NUM ? 'n' : tempId->iddatatype == IT::FLT ? 'f' : 's';
+				lexe.view = (tempId->iddatatype == IT::NUM ? 'n' : tempId->iddatatype == IT::FLT ? 'f' : 's');
 				
 				delete tempId;
 			}
@@ -755,12 +782,24 @@ void setLexemsAndIds(
 			ide->idxfirstLE = lextable.size - 1;
 			ide->idtype = IT::L;
 			ide->iddatatype = word[0] == '\'' ? IT::SYMB 
-							  : isFloat(word) ? IT::FLT : IT::NUM;
+							  : isFloat(word) ? IT::FLT 
+							  : isStr(word) ? IT::STR : IT::NUM;
 			ide->hasValue = true;
 			
 			if (ide->iddatatype == IT::NUM)
 			{
-				ide->value.vint = stoi(word);
+				long long ln = stoll(word);
+				
+				if (ln > INT_MAX)
+				{
+					throw ERROR_THROW_IN(624, line, 0);
+				}
+				else if(ln < INT_MIN)
+				{
+					throw ERROR_THROW_IN(625, line, 0);
+				}
+
+				ide->value.vint = ln;
 			}
 			else if (ide->iddatatype == IT::FLT)
 			{
@@ -771,7 +810,26 @@ void setLexemsAndIds(
 						i = ',';
 					}
 				}
-				ide->value.vflt = stof(word);
+				try
+				{
+					ide->value.vflt = stof(word);
+				}
+				catch (...)
+				{
+					throw ERROR_THROW_IN(626, line, 0);
+				}
+			}
+			else if (ide->iddatatype == IT::STR)
+			{
+				word.erase(word.end() - 1);
+				word.erase(word.begin());
+				
+				if (word.size() > 255)
+				{
+					throw ERROR_THROW_IN(627, line, 0);
+				}
+				
+				strcpy_s(ide->value.vstr, word.c_str());
 			}
 			else
 			{
@@ -792,6 +850,7 @@ void setLexemsAndIds(
 			lexe.sn = line;
 			lexe.idxTI = idtable.size;
 			
+			check_id_size(word);
 
 			bool in_scope = is_id_in_this_scope(idtable, word, scope);
 			bool in_table = is_id_in_table(idtable, word, scope);
@@ -826,7 +885,6 @@ void setLexemsAndIds(
 					ide->isRef = true;
 					words.erase(words.begin() + i + 2);
 				}
-				
 				
 				switch (words[i + 2][0])
 				{
@@ -1062,7 +1120,7 @@ string toString(char* str)
 
 bool isStopSymbol(char symbol)
 {
-	const char* stopSymbols = " \t\n;,{}()?><=,&|~!\'";
+	const char* stopSymbols = " \t\n;,{}()?><=`,&|~!\'";
 
 	for (short i = 0; i < strlen(stopSymbols); i++)
 	{
@@ -1087,21 +1145,32 @@ bool isLiteral(string word)
 
 	regex regSymb("'[^☺]'");
 	
-	return execute(regNum) || regex_match(word.begin(), word.end(), regSymb) || isFloat(word);
+	return execute(regNum) || regex_match(word.begin(), word.end(), regSymb) || isFloat(word) || isStr(word);
 }
 
 bool isFloat(string word)
 {
-	regex regFloat("[0-9]{0,10}\\.[0-9]{1,23}");
+	if (word.front() == '+' || word.front() == '-')
+	{
+		word.erase(word.begin());
+	}
+	regex regFloat("[0-9]*\\.[0-9]+");
 	return regex_match(word.begin(), word.end(), regFloat);
 }
-
 
 bool isId(string word)
 {
 	regex reg("[A-Za-z_][A-Za-z0-9_]*");
 
 	return regex_match(word.begin(), word.end(), reg);
+}
+
+void check_id_size(string& id)
+{
+	while (id.size() > ID_MAX_SIZE)
+	{
+		id.pop_back();
+	}
 }
 
 bool is_id_in_table(
@@ -1231,4 +1300,9 @@ bool nextIs(string word, vector<string>& words, int i)
 	}
 
 	return false;
+}
+
+bool isStr(string word)
+{
+	return word[0] == '`' && word.back() == '`';
 }

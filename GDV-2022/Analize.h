@@ -3,6 +3,7 @@
 
 #define PARAMETR_OF_LYMBDA 'o'
 #define FOR 'p'
+#define SKIP 'z'
 
 void LexAnalize( // функция для выполнения лексического анализа
 	In::IN in, // входной файл

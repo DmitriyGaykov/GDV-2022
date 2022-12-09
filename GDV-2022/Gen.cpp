@@ -1,5 +1,5 @@
 #include "Gen.h"
-
+#define SKIP 'z'
 namespace GEN
 {
 	bool Generate(
@@ -314,7 +314,7 @@ namespace GEN
 				break;
 			}
 
-			case 's':
+			case SKIP:
 			{
 				fout << "return false;\n";
 				break;
@@ -394,63 +394,6 @@ namespace GEN
 			}
 
 			case '{': case '}':
-			/*{
-				if (lextable.table[i].lexema == '{')
-				{
-					fout << '\n';
-					t = tabs;
-					
-					while (!t.empty())
-					{
-						fout << t.top();
-						t.pop();
-					}
-
-					fout << lextable.table[i].lexema << '\n';
-					
-					tabs.push("\t");
-					
-					t = tabs;
-
-					while (!t.empty())
-					{
-						fout << t.top();
-						t.pop();
-					}
-
-				}
-				else if (lextable.table[i].lexema == '}')
-				{
-					if (
-						i + 1 < lextable.size && 
-						(lextable.table[i + 1].lexema != ')' || lextable.table[i - 1].lexema != ';')
-					)
-					{
-						fout << '\n';
-						
-						t = tabs;
-
-						while (!t.empty())
-						{
-							fout << t.top();
-							t.pop();
-						}
-					}
-					
-					tabs.pop();
-
-					t = tabs;
-
-					while (!t.empty())
-					{
-						fout << t.top();
-						t.pop();
-					}
-
-				}
-				
-				break;
-			}*/
 			{	
 				fout << "\n";
 				
@@ -709,12 +652,12 @@ namespace GEN
 			{
 				if (lextable.table[i + 1].lexema == '(' && lextable.table[i + 2].lexema == ')')
 				{
-					fout << "cout << '\\n'";
+					fout << "std::cout << '\\n'";
 					i += 2;
 				}
 				else
 				{
-					fout << "cout << ";
+					fout << "std::cout << ";
 					countScopesForConsole = 0;
 					isConsole = true;
 				}

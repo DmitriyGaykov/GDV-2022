@@ -1,37 +1,18 @@
-f is foo(a is ref float) is float
+
+Fact is foo(number is num) is num
 {
-	(a > 2) ?
-	Lie
+	res => 1;
+	For(1, number, 1, el =>
 	{
-		a = 2;
-	}
-
-	
-	(a == 23) ?
-	Truth
-	{
-		a = sum(23, 1) & 23;
-	}
-
-	console(`A теперь имеет значение: `, a);
-	return a & a;
+		res = mult(res, el);
+	});
+	return res;
 }
-
+res => 23;
 main
 {
-	a => 2222222222222220000000000000000.23;
-
-	cb => sum('1', 23);
-	
-	For(1, 23, 2, el => {
-		el = el;
-	});
-	
-	b is float = 22.2 & 'g';
-	f(a);
-	char => '$';
-
-	b = a & 2.3 | 1 | ~23;
-	
-	return 0;
+	a is num = (3 & 3);
+	res => Fact(a);
+	console(`Факториал числа `, a, ` равен `, res);
+	return 0;	
 }

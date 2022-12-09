@@ -252,7 +252,7 @@ void setLexemsAndIds(
 
 	int index;
 	int indexOfScope = 0;
-	scope.push("");
+	scope.push("$");
 
 	CHECK::Checker checker;
 	
@@ -511,7 +511,7 @@ void setLexemsAndIds(
 		else if (check(checker._skip, word.c_str()))
 		{
 			lexe.idxTI = -1;
-			lexe.lexema = 's';
+			lexe.lexema = SKIP;
 			lexe.sn = line;
 			
 			LT::Add(lextable, lexe);	

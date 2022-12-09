@@ -3,7 +3,6 @@
 
 #define HEADER "#include <iostream>\n" <<\
 			   "#include <windows.h>\n" <<\
-			   "using namespace std;\n\n" <<\
 			   "\n#pragma comment(lib, \"..\\\\GDV-2022\\\\Debug\\\\LIB.lib\")\n"<<\
 			   "#include \"..\\\\LIB\\\\framework.h\"\n\n\n"
 

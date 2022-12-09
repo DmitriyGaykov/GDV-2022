@@ -16,6 +16,14 @@ void checkSemantic(
 			{
 				ite->needToInt = (ite + 1)->needToInt = true;
 			}
+			else if (ite->iddatatype == IT::ACTION)
+			{
+				throw ERROR_THROW_IN(628, lextable.table[i - 1].sn, 0);
+			}
+			else  if ((ite + 1)->iddatatype == IT::ACTION)
+			{
+				throw ERROR_THROW_IN(628, lextable.table[i].sn, 0);
+			}
 		}
 		else if (lextable.table[i].lexema == '~')
 		{
@@ -24,6 +32,26 @@ void checkSemantic(
 			if (ite->iddatatype == IT::FLT)
 			{
 				ite->needToInt = true;
+			}
+			else if (ite->iddatatype == IT::ACTION)
+			{
+				throw ERROR_THROW_IN(628, lextable.table[i + 1].sn, 0);
+			}
+		}
+		else if (lextable.table[i].lexema == '=')
+		{
+			int j = i + 1;
+			
+			while (lextable.table[j].lexema == '(')
+			{
+				j++;
+			}
+
+			ite = &idtable.table[IT::GetIndexByLTIndex(idtable, j)];
+
+			if (ite->idtype == IT::F && ite->iddatatype == IT::ACTION)
+			{
+				throw ERROR_THROW_IN(628, lextable.table[j].sn, 0);
 			}
 		}
 	}

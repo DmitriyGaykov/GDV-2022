@@ -248,6 +248,8 @@ void setLexemsAndIds(
 	
 	bool* willBeTrue = nullptr;
 
+	bool mainWas = false;
+
 	int index;
 	int indexOfScope = 0;
 	scope.push("");
@@ -723,11 +725,17 @@ void setLexemsAndIds(
 
 		else if (check(checker._main, word.c_str()))
 		{
+			if (mainWas)
+			{
+				throw ERROR_THROW_IN(629, line, 0);
+			}
 			lexe.idxTI = -1;
 			lexe.lexema = 'm';
 			lexe.sn = line;
 
 			LT::Add(lextable, lexe);
+			
+			mainWas = true;
 
 			scope.push("main");
 		}

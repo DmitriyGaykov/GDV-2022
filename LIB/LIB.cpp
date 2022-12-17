@@ -36,7 +36,7 @@ float mult(float a, float b)
 
 int division(int a, int b)
 {
-	return a / b;
+	return (b == 0 ? INT_MAX : a / b);
 }
 
 float division(float a, float b)

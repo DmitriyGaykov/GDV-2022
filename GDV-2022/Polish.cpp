@@ -3,104 +3,78 @@
 namespace PN
 {
 	typedef char operation;
-
+	void go_to_pol(char* expr, map<char, IT::Entry*> dict, LT::LexTable& lextable, IT::IdTable& idtable);
 	bool Polish(LT::LexTable& lextable, IT::IdTable& idtable)
 	{
-		auto expr = new char[100];
+		auto expr = new char[200];
 		auto cls = (char*)"";
 		int size;
 		int index;
 		char* polExprs;
 		char el;
-		map<char, IT::Entry> dict;
+		map<char, IT::Entry*> dict;
 		IT::Entry* ide;
 		LT::Entry* lte;
-		LT::LexTable lex = LT::Create(lextable.maxsize);
+		auto table = lextable.table;
+
+		bool isFunc;
+		int cntScopes;
 		
 		for (int i = 0; i < lextable.size; i++)
 		{
-			dict.clear();
-			strcpy_s(expr, cls);
-			size = 0;
-			el = 'a';
-			
-			if (
-				lextable.table[i].lexema == '=' && 
-				(lextable.table[i + 1].lexema != i && lextable.table[i + 2].lexema != '('))
+			if (table[i].lexema == '=' || table[i].lexema == 'r')
 			{
-				for (int j = i + 1; lextable.table[j].lexema != ';'; j++)
+				i++;
+				strcpy_s(expr, cls);
+				dict.clear();
+				size = 0;
+				isFunc = false;
+				cntScopes = 0;
+				el = 'a';
+
+				while (table[i].lexema != ';')
 				{
-					if (isOperation(lextable.table[j].view))
+					if (table[i].lexema == '(' && table[i - 1].lexema == 'i')
 					{
-						expr[size++] = lextable.table[j].view;
+						isFunc = true;
+						cntScopes = 0;
 					}
-					else if (isBrackets(lextable.table[j].lexema))
+					if (!isFunc)
 					{
-						expr[size++] = lextable.table[j].lexema;
-					}
-					else
-					{	
-						ide = new IT::Entry();
-
-						index = IT::GetIndexByLTIndex(idtable, j);
-						*ide = IT::GetEntry(idtable, index);
-						expr[size++] = el;
-						dict[el++] = *ide;
-
-						delete ide;
-					}
-				}
-				
-				expr[size] = '\0';
-				
-				polExprs = PolishNotation(expr);
-				
-				LT::Add(lex, lextable.table[i]);
-
-				for (int k = 0; k < strlen(polExprs); k++)
-				{
-					if (!isOperation(polExprs[k]))
-					{
-						
-						if (strcmp(dict[polExprs[k]].id, "literal") != -1)
+						if (table[i].lexema != 'i' && table[i].lexema != 'l')
 						{
-							index = IT::IsId(idtable, dict[polExprs[k]].id);
-							lextable.table[dict[polExprs[k]].idxfirstLE].idxTI = index;
-							LT::Add(lex, lextable.table[dict[polExprs[k]].idxfirstLE]);
-							idtable.table[index].idxfirstLE = lex.size - 1;
+							expr[size++] = (table[i].lexema == 'v' ? table[i].view : table[i].lexema);
 						}
 						else
 						{
-							index = IT::GetIndexByLTIndex(idtable, dict[polExprs[k]].idxfirstLE);
-							lextable.table[dict[polExprs[k]].idxfirstLE].idxTI = index;
-							LT::Add(lex, lextable.table[dict[polExprs[k]].idxfirstLE]);
-							idtable.table[index].idxfirstLE = lex.size - 1;
+							expr[size++] = el++;
+							dict[el - 1] = &idtable.table[table[i].idxTI];
 						}
 					}
-					else
+
+					if (table[i].lexema == '(' && isFunc)
 					{
-						lte = new LT::Entry();
-						
-						lte->idxTI = -1;
-						lte->lexema = polExprs[k];
-						lte->sn = lextable.table[i].sn;
-						lte->view = polExprs[k];
-						
-						LT::Add(lex, *lte);
-						
-						delete lte;
+						cntScopes++;
 					}
+					else if (table[i].lexema == ')' && isFunc)
+					{
+						cntScopes--;
+
+						if (cntScopes == 0)
+						{
+							isFunc = false;
+						}
+					}
+					i++;
 				}
-				
-				i += size;
-			}
-			else
-			{
-				LT::Add(lex, lextable.table[i]);
+				expr[size] = 0;
+
+				polExprs = PolishNotation(expr);
+
+				go_to_pol(polExprs, dict, lextable, idtable);
 			}
 		}
 		
-		lextable = lex;
 		
 		delete[] expr;
 
@@ -129,6 +103,39 @@ namespace PN
 		goThrowStr(expression, polishExpression);
 
 		return polishExpression;
+	}
+
+	void go_to_pol(char* expr, map<char, IT::Entry*> dict, LT::LexTable& lextable, IT::IdTable& idtable)
+	{
+		ushort len = strlen(expr);
+		IT::Entry* edi;
+		
+		for (ushort i = 0; i < len; i++)
+		{
+			if (!isOperation(expr[i]))
+			{
+				edi = dict[expr[i]];
+				
+				if (edi->iddatatype == IT::FLT && len > 1)
+				{
+					edi->needToInt = true;
+					cout << "| Предупреждение: переменная/функция/литерал ";
+					if (edi->idtype == IT::L)
+					{
+						cout << edi->value.vflt;
+					}
+					else
+					{
+						cout << edi->id;
+					}
+					cout << " приведена к типу num при выполение побитовых операций! Строка: " << lextable.table[edi->idxfirstLE].sn << " |\n";
+				}
+				else if (edi->iddatatype == IT::ACTION)
+				{
+					throw ERROR_THROW_IN(628, lextable.table[edi->idxfirstLE].sn, -1);
+				}
+			}
+		}
 	}
 
 	bool checkExpression(char* expression)

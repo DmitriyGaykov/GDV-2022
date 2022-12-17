@@ -14,19 +14,19 @@ int main(int argc, _TCHAR* argv[])
 		log = Log::getlog(parm.log); // получение лога
 		auto in = In::getin(parm.in); // получение входных данных
 
-		LT::LexTable lextable = LT::Create(in.size); // создание таблицы лексем
-		IT::IdTable idtable = IT::Create(in.size); // создание таблицы идентификаторов
+		LT::LexTable lextable = LT::Create(4000); // создание таблицы лексем
+		IT::IdTable idtable = IT::Create(4000); // создание таблицы идентификаторов
 		
 		LexAnalize(in, lextable, idtable);
+		
+		Log::WriteLog(log); // запись в лог
 
-		cout << endl;
+		Log::WriteIn(log, in); // запись процесса обработки входных данных
+		Log::WriteParm(log, parm); // запись процесса проверки параметров
 
-		for (int i = 0; i < lextable.size; i++)
-		{
-			cout << lextable.table[i].lexema;
-		}
-
-		cout << endl;
+		Log::WriteLT(log, lextable); // запись таблицы лексем
+		LT::Output(lextable);
+		IT::Output(idtable);
 		
 		ofstream fout("trace.txt");
 		
@@ -47,17 +47,11 @@ int main(int argc, _TCHAR* argv[])
 			throw ERROR_THROW(121);
 		}
 		
-		cout << endl << endl;
-		
 		checkSemantic(lextable, idtable);
 
 		GEN::Generate(lextable, idtable, parm);
 
-		Log::WriteLog(log); // запись в лог
-
-		Log::WriteParm(log, parm); // запись процесса проверки параметров
-
-		Log::WriteIn(log, in); // запись процесса обработки входных данных
+		GEN::Run(parm);
 
 		Log::Close(log); // закрытие лога
 	}
@@ -66,7 +60,11 @@ int main(int argc, _TCHAR* argv[])
 		std::cout << "Ошибка: " << e.id << " : " << e.message << std::endl; // вывод ошибки
 		if (e.inext.line != -1)
 		{
-			std::cout << "Строка: " << e.inext.line << "  Символ: " << e.inext.col << std::endl;
+			std::cout << "Строка: " << e.inext.line;
+			if (e.inext.col != -1)
+			{
+				cout << "  Символ: " << e.inext.col << std::endl;
+			}
 		}
 		Log::WriteError(log, e); // запись ошибки в лог
 		Log::Close(log); // закрытие лога

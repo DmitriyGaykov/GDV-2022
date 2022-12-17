@@ -1,18 +1,28 @@
-
-Fact is foo(number is num) is num
+Fact is foo(a is num) is num
 {
-	res => 1;
-	For(1, number, 1, el =>
+    res => 1;
+	
+	For(1, a, 1, el => 
 	{
-		res = mult(res, el);
-	});
-	return res;
+        res = mult(res, el);
+    });
+
+    return res;
 }
-res => 23;
+
 main
 {
-	a is num = (3 & 3);
-	res => Fact(a);
-	console(`Факториал числа `, a, ` равен `, res);
-	return 0;	
+    a => Fact(3);
+	(a == 6) ? 
+	{
+		console(`a равно 6`);
+	} : {
+		console(`a не равно 6`);
+	}
+
+	`\nПодключение функции`
+	@import round;
+
+	half is float;
+	half = .5 & 1;
 }

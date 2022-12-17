@@ -1,5 +1,6 @@
 ﻿#include "Analize.h"
 #include "Check.h"
+#include <random>
 using namespace fst;
 
 using CHECK::check;
@@ -22,7 +23,11 @@ void LexAnalize(
 		"symb_to_num is foo(s is symb) is num{(s == '0') ?Truth{return 0;}(s == '1') ? Truth{return 1;}(s == '2') ?Truth{return 2;}(s == '3') ?Truth{return 3;}(s == '4') ?Truth{return 4;}(s == '5') ?Truth{return 5;}(s == '6') ?Truth{return 6;}(s == '7') ?Truth{return 7;}(s == '8') ?Truth{return 8;}(s == '9') ?Truth{return 9;}return s;}"},
 		
 		{"abs",
-		"abs is foo(number is num) is num{(number < 0) ? Truth { return mult(number, -1);}return number;}"}
+		"abs is foo(number is num) is num{(number < 0) ? Truth { return mult(number, -1);}return number;}"},
+		
+		{"round",
+		 "round is foo(a is float) is float { numa is num = a; (minus(a, numa) > .5) ? { return sum(numa, 1); } return numa; }"
+		}
 	};
 
 	char* text = (char*)in.text;
@@ -39,7 +44,6 @@ void LexAnalize(
 		if (symb == '\n')
 		{
 			line++;
-			
 			
 			if (isComment)
 			{
@@ -102,6 +106,10 @@ void LexAnalize(
 					int j = i + 1;
 					while (text[j] != '`')
 					{
+						if ((text[j] == '"' || text[j] == '\\') && j + 1 < strlen(text) && (text[j + 1] != 't' && text[j + 1] != 'n'))
+						{
+							word += '\\';
+						}
 						word += text[j];
 						j++;
 						
@@ -134,7 +142,7 @@ void LexAnalize(
 					{
 						if (text[i + 2] != '\'')
 						{
-							throw ERROR_THROW_IN(600, line, 0);
+							throw ERROR_THROW_IN(600, line, -1);
 						}
 						
 						word += text[i + 1];
@@ -155,7 +163,7 @@ void LexAnalize(
 						{
 							if (text[i + 3] != '\'')
 							{
-								throw ERROR_THROW_IN(600, line, 0);
+								throw ERROR_THROW_IN(600, line, -1);
 							}
 
 							switch (text[i + 2])
@@ -170,7 +178,7 @@ void LexAnalize(
 								word += '\r';
 								break;
 							default:
-								throw ERROR_THROW_IN(621, line, 0);
+								throw ERROR_THROW_IN(621, line, -1);
 							}
 
 							word += text[i + 3];
@@ -201,7 +209,7 @@ void LexAnalize(
 					}
 					else
 					{
-						throw ERROR_THROW_IN(119, line, 0);
+						throw ERROR_THROW_IN(119, line, -1);
 					}
 					words.pop_back();
 					words.pop_back();
@@ -246,6 +254,9 @@ void setLexemsAndIds(
 	stack<string> tempScope;
 	IT::Entry* tempId;
 	
+	bool isMain = false;
+	int cntScopesRetInt = 0;
+	
 	bool* willBeTrue = nullptr;
 
 	bool mainWas = false;
@@ -253,6 +264,7 @@ void setLexemsAndIds(
 	int index;
 	int indexOfScope = 0;
 	scope.push("$");
+	time(NULL);
 
 	CHECK::Checker checker;
 	
@@ -260,6 +272,61 @@ void setLexemsAndIds(
 	{
 		lexe.view = 0;
 		word = words[i];
+
+		if (word == ":")
+		{
+			word = "Lie";
+		}
+		else if (word == "$R")
+		{
+			word = words[i] = to_string(rand() % 1000000 * pow(2, rand() % 4));
+		}
+		
+		if (word == "?")
+		{
+			if (nextIs("{", words, i + 1))
+			{
+				words.insert(words.begin() + i + 1, "Truth");
+			}
+		}
+
+		if (
+			word == "}" && 
+			isMain && 
+			cntScopesRetInt == 1 && 
+			lextable.size - 2 > 0 &&
+			(lextable.table[lextable.size - 1].lexema == ';' || lextable.table[lextable.size - 1].lexema == '}'))
+		{
+			int j = lextable.size - 2;
+			isMain = false;
+			while (
+				j >= 0 && 
+				(
+					lextable.table[j].lexema != '}' &&
+					lextable.table[j].lexema != ';' &&
+					lextable.table[j].lexema != '{'
+					)
+				)
+			{
+				j--;
+				
+				if (j == 0)
+				{
+					break;
+				}
+			}
+			if (j > 0)
+			{
+				if (lextable.table[j + 1].lexema != 'r')
+				{
+					words.insert(words.begin() + i, "return");
+					words.insert(words.begin() + i + 1, "0");
+					words.insert(words.begin() + i + 2, ";");
+					i--;
+					continue;
+				}
+			}
+		}
 
 		if (
 			i + 2 < words.size() &&
@@ -273,7 +340,7 @@ void setLexemsAndIds(
 			
 			if (isLiteral(words[i]))
 			{
-				throw ERROR_THROW_IN(612,line, 0);
+				throw ERROR_THROW_IN(612,line, -1);
 			}
 			else if (isId(words[i]))
 			{
@@ -293,7 +360,7 @@ void setLexemsAndIds(
 				{
 					if (j == 0 && words[j] != ",")
 					{
-						throw ERROR_THROW_IN(613, line, 0);
+						throw ERROR_THROW_IN(613, line, -1);
 					}
 					j--;
 				}
@@ -311,7 +378,7 @@ void setLexemsAndIds(
 					}
 					else
 					{
-						throw ERROR_THROW_IN(609, line, 0);
+						throw ERROR_THROW_IN(609, line, -1);
 					}
 				}
 				else if (isLiteral(words[j]))
@@ -322,7 +389,7 @@ void setLexemsAndIds(
 				}
 				else
 				{
-					throw ERROR_THROW_IN(614, line, 0);
+					throw ERROR_THROW_IN(614, line, -1);
 				}
 
 				j = i;
@@ -350,6 +417,11 @@ void setLexemsAndIds(
 			*fullWord = words[i + 2];
 			words[i + 1] = "is";
 			
+			if (!isId(word))
+			{
+				throw ERROR_THROW_IN(632, line, -1);
+			}
+			
 			if (isLiteral(*fullWord))
 			{
 				if (fullWord->c_str()[0] == '\'')
@@ -365,6 +437,7 @@ void setLexemsAndIds(
 					words.insert(words.begin() + i + 2, "num");
 				}
 			}
+			
 			else if (is_id_in_table(idtable, *fullWord, scope, fullWord))
 			{
 				index = IT::IsId(idtable, (char*)fullWord->c_str());
@@ -390,7 +463,7 @@ void setLexemsAndIds(
 			}
 			else
 			{
-				throw ERROR_THROW_IN(608, line, 0);
+				throw ERROR_THROW_IN(608, line, -1);
 			}
 			
 			words.insert(words.begin() + i + 3, "=");
@@ -431,7 +504,7 @@ void setLexemsAndIds(
 		{
 			if (!isFor.top())
 			{
-				throw ERROR_THROW_IN(616, line, 0);
+				throw ERROR_THROW_IN(616, line, -1);
 			}
 			lexe.idxTI = -1;
 			lexe.lexema = 'b';
@@ -442,7 +515,7 @@ void setLexemsAndIds(
 
 		else if (check(checker._for, word.c_str()))
 		{
-			scope.push("For" + to_string(countScopes++));
+			scope.push("$For" + to_string(countScopes++));
 			lexe.lexema = FOR;
 			lexe.sn = line;
 			lexe.idxTI = -1;
@@ -453,7 +526,7 @@ void setLexemsAndIds(
 			{
 				if (j == words.size())
 				{
-					throw ERROR_THROW_IN(615, line, 0);
+					throw ERROR_THROW_IN(615, line, -1);
 				}
 				j++;
 			}
@@ -529,20 +602,20 @@ void setLexemsAndIds(
 
 			if (words[i - 1] == "num" || words[i - 1] == "symb" || words[i - 1] == "float")
 			{
-				fullWord = &words[i - 3];
+				*fullWord = words[i - 3];
 			}
 			else if (isId(words[i - 1]))
 			{
-				fullWord = &words[i - 1];
+				*fullWord = words[i - 1];
 			}
 			else
 			{
-				throw ERROR_THROW_IN(607, line, 0);
+				throw ERROR_THROW_IN(607, line, -1);
 			}
 
 			if (!is_id_in_table(idtable, *fullWord, scope, fullWord))
 			{
-				throw ERROR_THROW_IN(602, line, 0);
+				throw ERROR_THROW_IN(602, line, -1);
 			}
 			
 			index = IT::IsId(idtable, (char*)fullWord->c_str());
@@ -550,8 +623,35 @@ void setLexemsAndIds(
 			willBeTrue = &idtable.table[index].hasValue;
 		}
 
-		else if (word == ";")
+		else if (check(checker._semicomma, word.c_str()))
 		{
+			if (i - 1 > 0 && lextable.table[lextable.size - 1].lexema == 't')
+			{
+				lexe.idxTI = -1;
+				lexe.lexema = '=';
+				lexe.sn = line;
+				lexe.view = '=';
+
+				LT::Add(lextable, lexe);
+				
+				lexe.idxTI = idtable.size;
+				lexe.lexema = 'l';
+				lexe.sn = line;
+				
+				LT::Add(lextable, lexe);
+				
+				ide = new IT::Entry();
+				
+				ide->hasValue = true;
+				strcpy_s(ide->id, "literal");
+				ide->iddatatype = IT::NUM;
+				ide->idtype = IT::L;
+				ide->idxfirstLE = lextable.size - 1;
+				ide->value.vint = 0;
+				IT::Add(idtable, *ide);
+				
+				delete ide;
+			}
 			lexe.idxTI = -1;
 			lexe.lexema = ';';
 			lexe.sn = line;
@@ -625,10 +725,11 @@ void setLexemsAndIds(
 
 			if (lextable.table[lextable.size - 2].lexema != 't')
 			{
-				scope.push("l" + to_string(indexOfScope++));
+				scope.push("$l" + to_string(indexOfScope++));
 			}
 
 			countScopes++;
+			cntScopesRetInt++;
 
 			if (isAction)
 			{
@@ -644,9 +745,10 @@ void setLexemsAndIds(
 
 			LT::Add(lextable, lexe);
 
-			scope.pop(); // хз, пока как указать =)
+			scope.pop();
 
 			countScopes--;
+			cntScopesRetInt--;
 
 			if (
 				i + 1 < words.size() &&
@@ -709,7 +811,7 @@ void setLexemsAndIds(
 			}
 			else
 			{
-				throw ERROR_THROW_IN(120, line, 0);
+				throw ERROR_THROW_IN(120, line, -1);
 			}
 		}
 
@@ -727,7 +829,7 @@ void setLexemsAndIds(
 		{
 			if (mainWas)
 			{
-				throw ERROR_THROW_IN(629, line, 0);
+				throw ERROR_THROW_IN(629, line, -1);
 			}
 			lexe.idxTI = -1;
 			lexe.lexema = 'm';
@@ -738,6 +840,8 @@ void setLexemsAndIds(
 			mainWas = true;
 
 			scope.push("main");
+			
+			isMain = true;
 		}
 
 		else if (check(checker._return, word.c_str()))
@@ -747,6 +851,18 @@ void setLexemsAndIds(
 			lexe.sn = line;
 
 			LT::Add(lextable, lexe);
+
+			if (isAction && isArtScopes(scope))
+			{
+				if (!nextIs(";", words, i + 1))
+				{
+					throw ERROR_THROW_IN(630, line, -1);
+				}
+			}
+			else if (nextIs(";", words, i + 1))
+			{
+				throw ERROR_THROW_IN(631, line, -1);
+			}
 		}
 
 		else if (check(checker._if, word.c_str()))
@@ -782,12 +898,11 @@ void setLexemsAndIds(
 			lexe.lexema = 'l';
 			lexe.sn = line;
 			lexe.idxTI = idtable.size;
-
-			LT::Add(lextable, lexe);
+			bool changed = false;
 
 			ide = new IT::Entry();
 
-			ide->idxfirstLE = lextable.size - 1;
+			ide->idxfirstLE = lextable.size;
 			ide->idtype = IT::L;
 			ide->iddatatype = word[0] == '\'' ? IT::SYMB 
 							  : isFloat(word) ? IT::FLT 
@@ -800,11 +915,11 @@ void setLexemsAndIds(
 				
 				if (ln > INT_MAX)
 				{
-					throw ERROR_THROW_IN(624, line, 0);
+					throw ERROR_THROW_IN(624, line, -1);
 				}
 				else if(ln < INT_MIN)
 				{
-					throw ERROR_THROW_IN(625, line, 0);
+					throw ERROR_THROW_IN(625, line, -1);
 				}
 
 				ide->value.vint = ln;
@@ -824,7 +939,7 @@ void setLexemsAndIds(
 				}
 				catch (...)
 				{
-					throw ERROR_THROW_IN(626, line, 0);
+					throw ERROR_THROW_IN(626, line, -1);
 				}
 			}
 			else if (ide->iddatatype == IT::STR)
@@ -834,19 +949,50 @@ void setLexemsAndIds(
 				
 				if (word.size() > 255)
 				{
-					throw ERROR_THROW_IN(627, line, 0);
+					throw ERROR_THROW_IN(627, line, -1);
 				}
 				
 				strcpy_s(ide->value.vstr, word.c_str());
+
+				if (lextable.size - 1 > 0 &&
+					lextable.table[lextable.size - 1].lexema != ',' &&
+					lextable.table[lextable.size - 1].lexema != '(')
+				{
+					changed = true;
+					lexe.lexema = 'c';
+					LT::Add(lextable, lexe);
+					lexe.lexema = '(';
+					LT::Add(lextable, lexe);
+					lexe.lexema = 'l';
+					LT::Add(lextable, lexe);
+					lexe.lexema = ')';
+					LT::Add(lextable, lexe);
+					lexe.lexema = ';';
+					LT::Add(lextable, lexe);
+					lexe.lexema = 'c';
+					LT::Add(lextable, lexe);
+					lexe.lexema = '(';
+					LT::Add(lextable, lexe);
+					lexe.lexema = ')';
+					LT::Add(lextable, lexe);
+					lexe.lexema = ';';
+					LT::Add(lextable, lexe);
+
+					ide->idxfirstLE = lextable.size - 7;
+				}
 			}
 			else
 			{
 				ide->value.vsymb = word[1];
 			}
 
-			strcpy_s(ide->id, "literal");
+			strcpy_s(ide->id, "literal.");
 
 			IT::Add(idtable, *ide);
+			if (!changed)
+			{
+				LT::Add(lextable, lexe);
+			}
 			
 			delete ide;
 		}
@@ -973,19 +1119,19 @@ void setLexemsAndIds(
 							}
 							else
 							{
-								ide->iddatatype = words[j + 2] == "num" ? IT::NUM :
-												  isFloat(words[j + 2]) ? IT::FLT : IT::SYMB;
+								ide->iddatatype = (words[j + 2] == "num" ? IT::NUM :
+												   words[j + 2] == "float" ? IT::FLT : IT::SYMB);
 							}
 
 						}
 						else
 						{
-							throw ERROR_THROW_IN(605, line, 0);
+							throw ERROR_THROW_IN(605, line, -1);
 						}
 					}
 					else
 					{
-						throw ERROR_THROW_IN(603, line, 0);
+						throw ERROR_THROW_IN(603, line, -1);
 					}
 					
 					break;
@@ -1011,7 +1157,7 @@ void setLexemsAndIds(
 
 				if (ide->isRef && ide->idtype != IT::P)
 				{
-					throw ERROR_THROW_IN(618, line, 0);
+					throw ERROR_THROW_IN(618, line, -1);
 				}
 				
 				IT::Add(idtable, *ide);
@@ -1060,7 +1206,7 @@ void setLexemsAndIds(
 			}
 			else if (!in_table)
 			{
-				throw ERROR_THROW_IN(609, line, 0);
+				throw ERROR_THROW_IN(609, line, -1);
 			}
 			else if (
 				words[i + 1] == "is" &&
@@ -1069,7 +1215,7 @@ void setLexemsAndIds(
 				in_scope
 				)
 			{
-				throw ERROR_THROW_IN(606, line, 0);
+				throw ERROR_THROW_IN(606, line, -1);
 			}
 			else if (is_id_in_table(idtable, word, scope, fullWord))
 			{
@@ -1083,7 +1229,7 @@ void setLexemsAndIds(
 				
 				if (ide->idtype == IT::F && !nextIs("(", words, i + 1))
 				{
-					throw ERROR_THROW_IN(620, line, 0);
+					throw ERROR_THROW_IN(620, line, -1);
 				}
 				else if (ide->idtype != IT::F && nextIs("(", words, i + 1))
 				{
@@ -1098,7 +1244,7 @@ void setLexemsAndIds(
 					words[i + 1] != "("
 					)
 				{
-					throw ERROR_THROW_IN(617, line, 0);
+					throw ERROR_THROW_IN(617, line, -1);
 				}
 		
 				delete ide;
@@ -1108,7 +1254,7 @@ void setLexemsAndIds(
 
 		else
 		{
-			throw ERROR_THROW_IN(601, line, 0);
+			throw ERROR_THROW_IN(601, line, -1);
 		}
 	}
 }
@@ -1128,7 +1274,7 @@ string toString(char* str)
 
 bool isStopSymbol(char symbol)
 {
-	const char* stopSymbols = " \t\n;,{}()?><=`,&|~!\'";
+	const char* stopSymbols = " \t\n;,{}()?>:<=`,&|~!\'";
 
 	for (short i = 0; i < strlen(stopSymbols); i++)
 	{
@@ -1141,33 +1287,146 @@ bool isStopSymbol(char symbol)
 	return false;
 }
 
-bool isLiteral(string word)
+bool is16Num(string& word)
+{
+	FST reg16Num(
+		(char*)word.c_str(),
+		4,
+		NODE(3, RELATION('-', 1), RELATION('+', 1), RELATION('$', 2)),
+		NODE(1, RELATION('$', 2)),
+		NODE(32, RELATION('0', 3), RELATION('0', 2), RELATION('1', 3), RELATION('1', 2), RELATION('2', 3), RELATION('2', 2), RELATION('3', 3), RELATION('3', 2), RELATION('4', 3), RELATION('4', 2), RELATION('5', 3), RELATION('5', 2), RELATION('6', 3), RELATION('6', 2), RELATION('7', 3), RELATION('7', 2), RELATION('8', 3), RELATION('8', 2), RELATION('9', 3), RELATION('9', 2), RELATION('A', 3), RELATION('A', 2), RELATION('B', 3), RELATION('B', 2), RELATION('C', 3), RELATION('C', 2), RELATION('D', 3), RELATION('D', 2), RELATION('E', 3), RELATION('E', 2), RELATION('F', 3), RELATION('F', 2)),
+		NODE()
+	);
+
+	long long num = 0;
+	bool isMinus = (word.front() == '-');
+	
+	if (execute(reg16Num))
+	{
+		for (ushort i = word.size() - 1, j = 0; word[i] != '$'; i--, j++)
+		{
+			if (!(word[i] >= 'A' && word[i] <= 'F'))
+			{
+				num += (word[i] - '0') * pow(16, j);
+			}
+			else
+			{
+				num += (word[i] - 'A' + 10) * pow(16, j);
+			}
+		}
+		
+		if (isMinus)
+		{
+			num *= -1;
+		}
+
+		word = to_string(num);
+		
+		return true;
+	}
+
+	return false;
+}
+
+bool isNum(string& word)
 {
 	FST regNum(
 		(char*)word.c_str(),
 		3,
-		NODE(22, RELATION('+', 1), RELATION('-', 1), RELATION('0', 1), RELATION('0', 2), RELATION('1', 1), RELATION('1', 2), RELATION('2', 1), RELATION('2', 2), RELATION('3', 1), RELATION('3', 2), RELATION('4', 1), RELATION('4', 2), RELATION('5', 1), RELATION('5', 2), RELATION('6', 1), RELATION('6', 2), RELATION('7', 1), RELATION('7', 2), RELATION('8', 1), RELATION('8', 2), RELATION('9', 1), RELATION('9', 2)),
-		NODE(20, RELATION('0', 1), RELATION('0', 2), RELATION('1', 1), RELATION('1', 2), RELATION('2', 1), RELATION('2', 2), RELATION('3', 1), RELATION('3', 2), RELATION('4', 1), RELATION('4', 2), RELATION('5', 1), RELATION('5', 2), RELATION('6', 1), RELATION('6', 2), RELATION('7', 1), RELATION('7', 2), RELATION('8', 1), RELATION('8', 2), RELATION('9', 1), RELATION('9', 2)),
+		NODE(24, RELATION('+', 1), RELATION('-', 1), RELATION('0', 1), RELATION('0', 2), RELATION('1', 1), RELATION('1', 2), RELATION('2', 1), RELATION('2', 2), RELATION('3', 1), RELATION('3', 2), RELATION('4', 1), RELATION('4', 2), RELATION('5', 1), RELATION('5', 2), RELATION('6', 1), RELATION('6', 2), RELATION('7', 1), RELATION('7', 2), RELATION('8', 1), RELATION('8', 2), RELATION('9', 1), RELATION('9', 2), RELATION('_', 1), RELATION('_', 2)),
+		NODE(22, RELATION('_', 1), RELATION('_', 2), RELATION('0', 1), RELATION('0', 2), RELATION('1', 1), RELATION('1', 2), RELATION('2', 1), RELATION('2', 2), RELATION('3', 1), RELATION('3', 2), RELATION('4', 1), RELATION('4', 2), RELATION('5', 1), RELATION('5', 2), RELATION('6', 1), RELATION('6', 2), RELATION('7', 1), RELATION('7', 2), RELATION('8', 1), RELATION('8', 2), RELATION('9', 1), RELATION('9', 2)),
 		NODE()
-		);
+	);
 
-	regex regSymb("'[^☺]'");
+	if (execute(regNum))
+	{
+		for (int i = 0; i < word.size(); i++)
+		{
+			if (word[i] == '_')
+			{
+				word.erase(i, 1);
+			}
+		}
+		return true;
+	}
 	
-	return execute(regNum) || regex_match(word.begin(), word.end(), regSymb) || isFloat(word) || isStr(word);
+	return false;
 }
 
-bool isFloat(string word)
+bool isLiteral(string& word)
 {
-	if (word.front() == '+' || word.front() == '-')
+	bool isOnly = true;
+	for (auto i : word)
 	{
-		word.erase(word.begin());
+		if (i != '_')
+		{
+			isOnly = false;
+			break;
+		}
 	}
-	regex regFloat("[0-9]*\\.[0-9]+");
-	return regex_match(word.begin(), word.end(), regFloat);
+	if (isOnly)
+		return false;
+	regex regSymb("'[^☺]'");
+	
+	return isNum(word) || regex_match(word.begin(), word.end(), regSymb) || isFloat(word) || isStr(word) || is16Num(word);
+}
+
+bool isFloat(string& word)
+{
+	char el;
+	bool withSign = false;
+	
+	if ((word.front() == '-' || word.front() == '+'))
+	{
+		el = word.front();
+		withSign = true;
+		word.erase(0, 1);
+	}
+	
+	FST fstFloat(
+		(char*)word.c_str(),
+		4,
+		NODE(22, RELATION('_', 0), RELATION('.', 2), RELATION('0', 1), RELATION('0', 0), RELATION('1', 1), RELATION('1', 0), RELATION('2', 1), RELATION('2', 0), RELATION('3', 1), RELATION('3', 0), RELATION('4', 1), RELATION('4', 0), RELATION('5', 1), RELATION('5', 0), RELATION('6', 1), RELATION('6', 0), RELATION('7', 1), RELATION('7', 0), RELATION('8', 1), RELATION('8', 0), RELATION('9', 1), RELATION('9', 0)),
+		NODE(1, RELATION('.', 2)),
+		NODE(22, RELATION('_', 2), RELATION('_', 3), RELATION('0', 2), RELATION('0', 3), RELATION('1', 2), RELATION('1', 3), RELATION('2', 2), RELATION('2', 3), RELATION('3', 2), RELATION('3', 3), RELATION('4', 2), RELATION('4', 3), RELATION('5', 2), RELATION('5', 3), RELATION('6', 2), RELATION('6', 3), RELATION('7', 2), RELATION('7', 3), RELATION('8', 2), RELATION('8', 3), RELATION('9', 2), RELATION('9', 3), RELATION('_', 2), RELATION('_', 3)),
+		NODE()
+	);
+
+	if (execute(fstFloat))
+	{
+		if (withSign)
+		{
+			word = el + word;
+		}
+		
+		return true;
+	}
+
+	if (withSign)
+	{
+		word = el + word;
+	}
+	
+	return false;
 }
 
 bool isId(string word)
 {
+	bool isOnly = true;
+	for (auto i : word)
+	{
+		if (i != '_')
+		{
+			isOnly = false;
+			break;
+		}
+	}
+
+	if (isOnly)
+	{
+		return false;
+	}
+	
 	regex reg("[A-Za-z_][A-Za-z0-9_]*");
 
 	return regex_match(word.begin(), word.end(), reg);
@@ -1313,4 +1572,19 @@ bool nextIs(string word, vector<string>& words, int i)
 bool isStr(string word)
 {
 	return word[0] == '`' && word.back() == '`';
+}
+
+bool isArtScopes(stack<string> scope, int i)
+{
+	while (scope.size() > i)
+	{
+		if (scope.top()[0] != '$')
+		{
+			return false;
+		}
+		
+		scope.pop();
+	}
+
+	return true;
 }

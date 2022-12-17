@@ -3,8 +3,8 @@
 
 #define HEADER "#include <iostream>\n" <<\
 			   "#include <windows.h>\n" <<\
-			   "\n#pragma comment(lib, \"..\\\\GDV-2022\\\\Debug\\\\LIB.lib\")\n"<<\
-			   "#include \"..\\\\LIB\\\\framework.h\"\n\n\n"
+			   "\n#pragma comment(lib, \"C:\\\\Users\\\\dimag\\\\OneDrive\\\\Рабочий стол\\\\Курсач КПО\\\\GDV-2022\\\\Debug\\\\LIB.lib\")\n"<<\
+			   "#include \"C:\\\\Users\\\\dimag\\\\OneDrive\\\\Рабочий стол\\\\Курсач КПО\\\\LIB\\\\framework.h\"\n\n\n"
 
 
 #define STARTMAIN "int main()\n" <<\
@@ -24,4 +24,6 @@ namespace GEN
 	);
 
 	void changeDoth(char* str); // заменить точки в строке
+
+	void Run(Parm::PARM& parm); // запустить компиляцю и сборку файла Cpp
 }

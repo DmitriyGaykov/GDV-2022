@@ -62,4 +62,6 @@ namespace LT // таблица лексем
 		LexTable& lextable // таблица лексем
 	);
 
+	void Output(LexTable& lextable); // вывод таблицы лексем
+
 }

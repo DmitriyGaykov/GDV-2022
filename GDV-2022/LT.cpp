@@ -49,4 +49,27 @@ namespace LT
 		lextable.size = 0;
 		lextable.maxsize = 0;
 	}
+
+	void Output(LexTable& lextable)
+	{
+		fstream fout("LT.txt", fstream::out);
+		Entry e;
+		fout << "Таблица лексем";
+		fout << endl;
+		int dist = 8;
+
+		fout << "Лексема\t\t\t\t"
+		     << "Номер в таблице идентификаторов\t\t\t"
+			 << "Номер строки в исходном коде" << endl;
+		for (int i = 0; i < lextable.size; i++)
+		{
+			e = lextable.table[i];
+			
+			fout << e.lexema << "\t\t\t\t\t"
+				<< (e.idxTI == -1 ? "" : to_string(e.idxTI)) << "\t\t\t\t\t\t\t\t\t\t"
+				<< e.sn << endl;
+		}
+		
+		fout.close();
+	}
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include "stdafx.h"
-
+using namespace std;
 #define PARAMETR_OF_LYMBDA 'o'
 #define FOR 'p'
 #define SKIP 'z'
@@ -14,7 +14,11 @@ string toString(char* str); // перевод строки char в строку string
 
 void check_id_size(string& id); // проверка на длину идентификатора
 
-bool isFloat(string word); // проверка на float
+bool isArtScopes(// Функция проверка на ниличие искусственных областей видимости
+	stack<string> scope, // стек областей видимости
+	int i = 2); // i - до какого элемента проверять
+
+bool isFloat(string& word); // проверка на float
 
 void insertToStr( // вставить в строку текст
 	char* str, // строка, в которую будем вставлять строку
@@ -28,7 +32,7 @@ void setLexemsAndIds( // разбиение строки на лексемы и идентификаторы
 	LT::LexTable& lexems, // таблица лексем
 	IT::IdTable& idtable); // таблица идентификаторов
 
-bool isLiteral(string word); // проверяет слово, является ли оно литералом
+bool isLiteral(string& word); // проверяет слово, является ли оно литералом
 
 bool isStr(string word); // проверяет слово, является ли оно строкой
 

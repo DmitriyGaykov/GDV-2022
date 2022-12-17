@@ -37,6 +37,12 @@ namespace GEN
 		cntScopesCF.push(0);
 		stack<int> numberOfP;
 		stack<vector<string>> paramsCF;
+
+		stack<IT::IDDATATYPE> typesOfFunc;
+		stack<int> countScopesInit;
+		int cntScopesTypes = 0;
+		
+		bool isReturn = false;
 		
 		tabs.push("");
 		
@@ -48,6 +54,17 @@ namespace GEN
 			{
 			case 'i':
 			{
+				edi = new IT::Entry();
+				*edi = IT::GetEntry(idtable, lextable.table[i].idxTI);
+				
+				if (edi->idtype == IT::F && lextable.table[i + 1].lexema == 's')
+				{
+					typesOfFunc.push(edi->iddatatype);
+					countScopesInit.push(cntScopesTypes);
+				}
+				
+				delete edi;
+				
 				if (
 					i + 2 < lextable.size &&
 					lextable.table[i + 1].lexema == 's' &&
@@ -168,7 +185,7 @@ namespace GEN
 					{
 						if (paramsCF.top()[numberOfP.top()].back() == '&' && idtable.table[lextable.table[i].idxTI].idtype == IT::F)
 						{
-							throw ERROR_THROW_IN(619, lextable.table[i].sn, 0);
+							throw ERROR_THROW_IN(619, lextable.table[i].sn, -1);
 						}
 						fout << "(" << paramsCF.top()[numberOfP.top()] << ")";
 						short tmp = numberOfP.top() + 1;
@@ -259,7 +276,7 @@ namespace GEN
 				{
 					if (paramsCF.top()[numberOfP.top()].back() == '&')
 					{
-						throw ERROR_THROW_IN(619, lextable.table[i].sn, 0);
+						throw ERROR_THROW_IN(619, lextable.table[i].sn, -1);
 					}
 					
 					fout << "(" << paramsCF.top()[numberOfP.top()] << ")";
@@ -280,7 +297,7 @@ namespace GEN
 				{
 					if (!isConsole)
 					{
-						throw ERROR_THROW_IN(622, lextable.table[i].sn, 0);
+						throw ERROR_THROW_IN(622, lextable.table[i].sn, -1);
 					}
 					fout << '"' << edi->value.vstr << '"';
 				}
@@ -329,6 +346,23 @@ namespace GEN
 			case 'r':
 			{
 				fout << "return ";
+				isReturn = true;
+				if (typesOfFunc.size() > 0 && typesOfFunc.top() != IT::ACTION)
+				{
+					if (typesOfFunc.top() == IT::NUM)
+					{
+						fout << "(int)(";
+					}
+					else if (typesOfFunc.top() == IT::FLT)
+					{
+						fout << "(float)(";
+					}
+					else if (typesOfFunc.top() == IT::SYMB)
+					{
+						fout << "(char)(";
+					}
+				}
+				
 				break;
 			}
 			
@@ -357,6 +391,10 @@ namespace GEN
 			{
 				fout << STARTMAIN;
 
+				typesOfFunc.push(IT::NUM);
+				countScopesInit.push(cntScopesTypes);
+				cntScopesTypes = 1;
+				
 				tabs.push("\t");
 				t = tabs;
 
@@ -398,10 +436,17 @@ namespace GEN
 				fout << "\n";
 				
 				t = tabs;
-				
+
 				if (lextable.table[i].lexema == '}')
 				{
 					t.pop();
+					cntScopesTypes--;
+
+					if (cntScopesTypes == countScopesInit.top())
+					{
+						countScopesInit.pop();
+						typesOfFunc.pop();
+					}
 				}
 
 				while (!t.empty())
@@ -409,13 +454,14 @@ namespace GEN
 					fout << t.top();
 					t.pop();
 				}
-
-
+				
 				if (lextable.table[i].lexema == '{')
 				{
 					fout << lextable.table[i].lexema << (i + 1 < lextable.size && (lextable.table[i + 1].lexema != ';' && lextable.table[i + 1].lexema != '}' && lextable.table[i + 1].lexema != '{')  ? "\n" : "");
 					tabs.push("\t");
 					t = tabs;
+
+					cntScopesTypes++;
 					
 					while (!t.empty())
 					{
@@ -471,13 +517,14 @@ namespace GEN
 
 						fout << lextable.table[i].lexema << (i + 1 < lextable.size && (lextable.table[i + 1].lexema != ';' && lextable.table[i + 1].lexema != '}' && lextable.table[i + 1].lexema != '{') ? "\n" : "");
 						t = tabs;
-
-						while (!t.empty())
+						if (lextable.size > i + 1 && lextable.table[i + 1].lexema != ';')
 						{
-							fout << t.top();
-							t.pop();
+							while (!t.empty())
+							{
+								fout << t.top();
+								t.pop();
+							}
 						}
-						
 					}
 				}
 				
@@ -486,6 +533,8 @@ namespace GEN
 
 			case '(':
 			{
+				if (lextable.table[i].view == 'i') 
+					fout << "(int)";
 				if (isCalledFoo.top())
 				{
 					short tmp = cntScopesCF.top() + 1;
@@ -623,8 +672,8 @@ namespace GEN
 
 			case ';':
 			{
-				fout << ";" << (i + 1 < lextable.size && lextable.table[i].lexema != '}' ? "\n" : "");
-
+				fout << (isReturn ? ")" : "") << "; " << (i + 1 < lextable.size && lextable.table[i].lexema != '}' ? "\n" : "");
+				isReturn = false;
 				t = tabs;
 
 				while (!t.empty())
@@ -671,6 +720,17 @@ namespace GEN
 
 		return true;
 	}
+
+	void Run(Parm::PARM& parm)
+	{
+		/*char* name = new char[300];
+		string command = 
+
+		wcstombs_s(NULL, name, 300, parm.out, 300);
+		
+		delete[] name;*/
+	}
+	
 
 	void changeDoth(char* str)
 	{

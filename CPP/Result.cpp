@@ -1,27 +1,21 @@
 #include <iostream>
 #include <windows.h>
-using namespace std;
+
+#pragma comment(lib, "C:\\Users\\dimag\\OneDrive\\Рабочий стол\\Курсач КПО\\GDV-2022\\Debug\\LIB.lib")
+#include "C:\\Users\\dimag\\OneDrive\\Рабочий стол\\Курсач КПО\\LIB\\framework.h"
 
 
-#pragma comment(lib, "..\\GDV-2022\\Debug\\LIB.lib")
-#include "..\\LIB\\framework.h"
-
-
-char f(float& a_f)
+int Fact_$(int a_Fact_$)
 {
-	if (a_f > 2)	{}
-	else	
+	int res_Fact_$ = 1; 
+	For((int)1, (int)a_Fact_$, 1, [&](int el_$For1_Fact_$)
 	{
-		a_f = 2;
+		res_Fact_$ = mult((int)res_Fact_$, (int)el_$For1_Fact_$); 
 		
-	}
-	if (a_f == 23)
-	{
-		a_f = sum((int)23, (int)1) & 23;
-		
-	}
-	cout << "A теперь имеет значение: " << a_f;
-	return (int)a_f & (int)a_f;
+	
+		return false;
+	}); 
+	return (int)(res_Fact_$); 
 	
 }
 int main()
@@ -29,19 +23,32 @@ int main()
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
 
-	float a_l2_main = 2.22222e+30;
-	int cb_l2_main = sum((char)'1', (char)23);
-	For((int)1, (int)23, 2, [&](int el_For1_l2_main)
+	int a_$l1_main_$ = Fact_$((int)3); 
+	if (a_$l1_main_$ == 6)
 	{
-		el_For1_l2_main = el_For1_l2_main;
+		std::cout << "a равно 6"; 
 		
-	
-		return false;
-	});
-	float b_l2_main = (int)22.2 & 'g';
-	f((float&)a_l2_main);
-	char char_l2_main = '$';
-	b_l2_main = (int)a_l2_main & (int)2.3 | 1 | ~23;
-	return 0;
+	}
+	else	
+	{
+		std::cout << "a не равно 6"; 
+		
+	}
+	std::cout << "\nПодключение функции"; 
+	std::cout << '\n'; 
+	auto round_$l1_main_$ = [&](float a_round_$l1_main_$)
+	{
+		int numa_round_$l1_main_$ = a_round_$l1_main_$; 
+		if (minus((float)a_round_$l1_main_$, (float)numa_round_$l1_main_$) > 0.5)
+		{
+			return (float)(sum((int)numa_round_$l1_main_$, (int)1)); 
+			
+		}
+		return (float)(numa_round_$l1_main_$); 
+		
+	}; 
+	float half_$l1_main_$ = 0; 
+	half_$l1_main_$ = (int)0.5 & 1; 
+	return (int)(0); 
 	
 }

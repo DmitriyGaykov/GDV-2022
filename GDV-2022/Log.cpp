@@ -32,6 +32,17 @@ namespace Log
 			str = *el;
 		}
 	}
+	
+	void WriteLT(LOG log, LT::LexTable lextable)
+	{
+		*(log.stream) << "----" << " Код, разобранный на лексемы: " << "----" << std::endl;
+		for (ushort i = 0; i < lextable.size; i++)
+		{
+			*(log.stream) << lextable.table[i].lexema;
+		}
+		*(log.stream) << "\n";
+	}
+	
 	void WriteLine(LOG log, wchar_t* c, ...)
 	{
 		wchar_t** el = &c;
@@ -99,7 +110,7 @@ namespace Log
 	{
 		string head = "---- Исходные данные --------\n";
 		*(log.stream) << head <<
-			"Количество символов:\t\t" << in.size << endl <<
+			"Количество символов:\t" << in.size << endl <<
 			"Проигнорировано:\t\t" << in.ignore << endl <<
 			"Количество строк:\t\t" << in.lines << endl;
 	}
@@ -110,8 +121,12 @@ namespace Log
 			if (e.inext.line != -1)
 			{
 				*(log.stream)
-					<< "Ошибка: " << e.id << " : " << e.message << std::endl
-					<< "Строка: " << e.inext.line << "  Символ: " << e.inext.col << std::endl;
+					<< "Ошибка: " << e.id << " : " << e.message << std::endl;
+				
+				if (e.inext.col != -1)
+				{
+					cout << "Строка: " << e.inext.line << "  Символ: " << e.inext.col << std::endl;
+				}
 			}
 			else
 			{

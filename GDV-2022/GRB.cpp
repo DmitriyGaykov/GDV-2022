@@ -91,8 +91,8 @@ GRB::Greibach greibach(
 		Rule::Chain(5, TS('i'), TS('='), NS(EXPR), NS(SEMICOLON), NS(BODY_ACTION)),
 		Rule::Chain(4, TS('i'), TS('='), NS(EXPR), NS(SEMICOLON)),
 
-		Rule::Chain(4, TS('{'), NS(VISAREA), TS('}'), NS(BODY_ACTION)),
-		Rule::Chain(3, TS('{'), NS(VISAREA), TS('}')),
+		Rule::Chain(4, TS('{'), NS(BODY_ACTION), TS('}'), NS(BODY_ACTION)),
+		Rule::Chain(3, TS('{'), NS(BODY_ACTION), TS('}')),
 
 		Rule::Chain(3, TS('{'), TS('}'), NS(BODY_FUNC)),
 		Rule::Chain(2, TS('{'), TS('}')),
@@ -107,7 +107,7 @@ GRB::Greibach greibach(
 		Rule::Chain(7, TS('('), NS(TYPES_VALUES), TS('V'), NS(TYPES_VALUES), NS(RIGHTSCOPE), TS('?'), NS(IFBODY)),
 
 		Rule::Chain(4, TS('i'), NS(INIT_FUNC), NS(SEMICOLON), NS(BODY_ACTION)),
-		Rule::Chain(4, TS('i'), NS(INIT_FUNC), NS(SEMICOLON), NS(RETURN)),
+		Rule::Chain(3, TS('i'), NS(INIT_FUNC), NS(SEMICOLON)),
 		
 		Rule::Chain(2, TS('r'), NS(SEMICOLON)),
 		Rule::Chain(3, TS('r'), NS(SEMICOLON), NS(BODY_ACTION))
@@ -225,7 +225,7 @@ GRB::Greibach greibach(
 	),
 	
 	Rule(NS(IF), GRB_ERROR_SERIES + 8, // условие
-		33,
+		36,
 		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), NS(RIGHTSCOPE), NS(SEMICOLON), NS(RETURN)),
 		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), NS(RIGHTSCOPE), NS(SEMICOLON), NS(IF)),
 		Rule::Chain(5, TS('i'), TS('('), NS(ARGS_CFUNC), NS(RIGHTSCOPE), NS(SEMICOLON)),
@@ -266,14 +266,19 @@ GRB::Greibach greibach(
 		Rule::Chain(7, TS('('), NS(TYPES_VALUES), TS('V'), NS(TYPES_VALUES), NS(RIGHTSCOPE), TS('?'), NS(IFBODY)),
 	
 		Rule::Chain(3, TS('r'), NS(EXPR), NS(SEMICOLON)),
+		Rule::Chain(2, TS('r'), NS(SEMICOLON)),
 		
 		Rule::Chain(2, TS('b'), NS(SEMICOLON)),
-		Rule::Chain(3, TS('b'), NS(SEMICOLON), NS(IF))
+		Rule::Chain(3, TS('b'), NS(SEMICOLON), NS(IF)),
+		
+		Rule::Chain(2, TS(SKIP), NS(SEMICOLON)),
+		Rule::Chain(3, TS(SKIP), NS(SEMICOLON), NS(IF))
 	),
 	
 	Rule(NS(RETURN), GRB_ERROR_SERIES + 9, // return
-	1,
-	Rule::Chain(3, TS('r'), NS(EXPR), NS(SEMICOLON))
+		2,
+		Rule::Chain(3, TS('r'), NS(EXPR), NS(SEMICOLON)),
+		Rule::Chain(2, TS('r'), NS(SEMICOLON))
 	),
 	
 	Rule(NS(TYPES_VALUES), GRB_ERROR_SERIES + 10, // типы значений
@@ -305,7 +310,7 @@ GRB::Greibach greibach(
 	),
 	
 	Rule(NS(VISAREA), GRB_ERROR_SERIES + 13, // тело функции
-		33,
+		36,
 		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), NS(RIGHTSCOPE), NS(SEMICOLON), NS(VISAREA)),
 		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), NS(RIGHTSCOPE), NS(SEMICOLON), NS(RETURN)),
 		Rule::Chain(5, TS('i'), TS('('), NS(ARGS_CFUNC), NS(RIGHTSCOPE), NS(SEMICOLON)),
@@ -340,7 +345,7 @@ GRB::Greibach greibach(
 	
 		Rule::Chain(4, TS('c'), NS(CONSOLE), NS(SEMICOLON), NS(VISAREA)),
 		Rule::Chain(4, TS('c'), NS(CONSOLE), NS(SEMICOLON), NS(RETURN)),
-		Rule::Chain(2, TS('c'), NS(CONSOLE), NS(SEMICOLON)),
+		Rule::Chain(3, TS('c'), NS(CONSOLE), NS(SEMICOLON)),
 	
 		Rule::Chain(8, TS('('), NS(TYPES_VALUES), TS('V'), NS(TYPES_VALUES), NS(RIGHTSCOPE), TS('?'), NS(IFBODY), NS(VISAREA)),
 		Rule::Chain(8, TS('('), NS(TYPES_VALUES), TS('V'), NS(TYPES_VALUES), NS(RIGHTSCOPE), TS('?'), NS(IFBODY), NS(RETURN)),
@@ -349,7 +354,11 @@ GRB::Greibach greibach(
 		Rule::Chain(2, TS('b'), NS(SEMICOLON)),
 		Rule::Chain(3, TS('b'), NS(SEMICOLON), NS(VISAREA)),
 	
-		Rule::Chain(3, TS('r'), NS(EXPR), NS(SEMICOLON))
+		Rule::Chain(3, TS('r'), NS(EXPR), NS(SEMICOLON)),
+		Rule::Chain(2, TS('r'), NS(SEMICOLON)),
+		
+		Rule::Chain(2, TS(SKIP), NS(SEMICOLON)),
+		Rule::Chain(3, TS(SKIP), NS(SEMICOLON), NS(VISAREA))
 	),
 	
 	Rule(NS(FOR_PARAM), GRB_ERROR_SERIES + 14, // Ошибка в параметрах цикла
@@ -358,7 +367,7 @@ GRB::Greibach greibach(
 	),
 	
 	Rule(NS(FOR_BODY), GRB_ERROR_SERIES + 15, // Ошибка в теле цикла For
-		27,
+		26,
 
 		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), NS(RIGHTSCOPE), NS(SEMICOLON), NS(FOR_BODY)),
 		Rule::Chain(5, TS('i'), TS('('), NS(ARGS_CFUNC), NS(RIGHTSCOPE), NS(SEMICOLON)),
@@ -379,7 +388,6 @@ GRB::Greibach greibach(
 		Rule::Chain(3, TS('{'), NS(FOR_BODY), TS('}')),
 		Rule::Chain(2, TS('{'), TS('}')),
 		Rule::Chain(3, TS('{'), TS('}'), NS(FOR_BODY)),
-		Rule::Chain(4, TS('{'), TS('}'), NS(RETURN), NS(FOR_BODY)),
 	
 		Rule::Chain(4, TS('i'), NS(INIT_FUNC), NS(SEMICOLON), NS(FOR_BODY)),
 		Rule::Chain(3, TS('i'), NS(INIT_FUNC), NS(SEMICOLON)),
@@ -442,13 +450,13 @@ GRB::Greibach greibach(
 		if (k < size) prule = rules[rc = k];
 		return rc;
 	};
-	Rule Greibach::getRule(short n)	///Iieo?eou i?aaeei ii iiia?o
+	Rule Greibach::getRule(short n)
 	{
 		Rule rc;
 		if (n < size) rc = rules[n];
 		return rc;
 	};
-	char* Rule::getCRule(char* b, short nchain)	///iieo?eou i?aaeei a aeaa N->oaii?ea
+	char* Rule::getCRule(char* b, short nchain)	
 	{
 		char bchain[200];
 		b[0] = Chain::alphabet_to_char(nn);
@@ -459,7 +467,7 @@ GRB::Greibach greibach(
 		strcat_s(b, sizeof(bchain) + 5, bchain);
 		return b;
 	};
-	short Rule::getNextChain(GRBALPHABET t, Rule::Chain& pchain, short j) ///Aa?ioou ? neaa. ca j oaii?ee eee -1
+	short Rule::getNextChain(GRBALPHABET t, Rule::Chain& pchain, short j)
 	{
 		short rc = -1;
 		while (j < size && chains[j].nt[0] != t)

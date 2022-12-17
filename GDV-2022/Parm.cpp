@@ -60,14 +60,14 @@ namespace Parm
 		{
 			wcscpy_s(p.log, p.in);
 			wcscat_s(p.log, L".log");
-		}
 
-		for (short i = 0; i < cnt; i++)
-		{
-			delete[] args[i];
+			for (short i = 0; i < cnt; i++)
+			{
+				delete[] args[i];
+			}
+			delete[] args;
+			return p;
 		}
-		delete[] args;
-		return p;
 	}
 }
 

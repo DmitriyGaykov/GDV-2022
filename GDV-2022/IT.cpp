@@ -109,82 +109,122 @@ namespace IT
 
 	void Output(IdTable& idtable)
 	{
+		int dist = 30;
+		int di = 10;
+		int dtd = -10;
+		int dt = -5;
+		int dind = 0;
+		int dv = 0;
+	
 		fstream fout("IT.txt", fstream::out);
 		Entry e;
 		fout << "Таблица идентификаторов";
 		fout << endl;
+
+		string word;
+
+		word = "Идентификатор";
+		fout << word << setw(dist - word.size() + di) << setfill(' ') << "| ";
 		
+		word = "Тип данных";
+		fout << word << setw(dist - word.size() + dtd) << setfill(' ') << "| ";
+
+		word = "Тип идентификатора";
+		fout << word << setw(dist - word.size() + dt) << setfill(' ') << "| ";
+		
+		
+		word = "Индекс в таблице лексем";
+		fout << word << setw(dist - word.size() + dind) << setfill(' ') << "| ";
+		
+		word = "Значение";
+		fout << word << endl;
+
 		for (ushort i = 0; i < idtable.size; i++)
 		{
 			e = idtable.table[i];
-			fout << "Идентификатор " << e.id << "\n";
+			fout << e.id << setw(dist - strlen(e.id) + di) << setfill(' ') << "| ";
 			
-			fout << "Тип данных: ";
-			if (e.isRef)
+			word = "";
+			if(e.isRef)
 			{
-				fout << "ref ";
+				word += "ref ";
 			}
 			switch (e.iddatatype)
 			{
 			case IT::NUM:
-				fout << "num";
-				break;
-			case IT::STR:
-				fout << "str";
-				break;
-			case IT::SYMB:
-				fout << "symb";
-				break;
-			case IT::ACTION:
-				fout << "action";
+				word += "num";
 				break;
 			case IT::FLT:
-				fout << "float";
+				word += "float";
+				break;
+			case IT::STR:
+				word += "string";
+				break;
+			case IT::ACTION:
+				word += "action";
+				break;
+			case IT::SYMB:
+				word += "symb";
 				break;
 			}
-			fout << "\n";
-			
-			fout << "Тип идентификатора: ";
+			fout << word << setw(dist - word.size() + dtd) << setfill(' ') << "| ";
+
+			word = "";
 			switch (e.idtype)
 			{
-			case IT::F:
-				fout << "Функция";
+			case IT::V:
+				word += "переменная";
 				break;
 			case IT::P:
-				fout << "Параметр";
+				word += "параметр";
 				break;
-			case IT::V:
-				fout << "Переменная";
+			case IT::F:
+				word += "функция";
 				break;
 			case IT::L:
-				fout << "Литерал";
+				word += "литерал";
 				break;
 			}
 			
-			if(!e.isFromStatic) fout << "\nИндекс в таблице лексем: " << e.idxfirstLE;
-			
-			if (e.isFromStatic)
+			fout << word << setw(dist - word.size() + dt) << setfill(' ') << "| ";
+			if (!e.isFromStatic || i > 3)
 			{
-				fout << "\nИз статической библиотеки!";
+				word = to_string(e.idxfirstLE);
 			}
+			else
+			{
+				word = "Из статической библиотеки";
+			}
+			
+			fout << word << setw(dist - word.size() + dind) << setfill(' ') << "| ";
+			
+			word = "";
 			if (e.idtype == IT::L)
 			{
-				fout << "\nЗначение: ";
-				
 				switch (e.iddatatype)
 				{
 				case IT::NUM:
-					fout << e.value.vint;
+					word += to_string(e.value.vint);
+					break;
+				case IT::FLT:
+					word += to_string(e.value.vflt);
 					break;
 				case IT::STR:
-					fout << e.value.vstr;
+					word += e.value.vstr;
 					break;
 				case IT::SYMB:
-					fout << e.value.vsymb;
+					word += e.value.vsymb;
 					break;
 				}
+				
+				fout << word;
 			}
-			fout << endl << endl;
+			else
+			{
+				word = "Не определено";
+				fout << word;
+			}
+			fout << endl;
 		}
 		
 		fout << endl;

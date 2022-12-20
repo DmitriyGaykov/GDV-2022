@@ -119,5 +119,6 @@
     <Text Include="LT.txt" />
     <Text Include="IT.txt" />
     <Text Include="in.txt.log" />
+    <Text Include="SNT.txt" />
   </ItemGroup>
 </Project>

@@ -109,7 +109,6 @@ namespace PN
 	{
 		ushort len = strlen(expr);
 		IT::Entry* edi;
-		
 		for (ushort i = 0; i < len; i++)
 		{
 			if (!isOperation(expr[i]))

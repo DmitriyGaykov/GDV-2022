@@ -95,7 +95,7 @@ namespace MFST
 
 	Mfst::RC_STEP Mfst::step()
 	{
-		ofstream fout("trace.txt", ios::app);
+		ofstream fout("SNT.txt", ios::app);
 		RC_STEP  rc = SURPRISE;
 		if (lenta_position < lenta_size)
 		{
@@ -196,7 +196,7 @@ namespace MFST
 		//TS_OK,				// тек. символ ленты == вершине стека, продвинулась лента, pop стека
 		//TS_NOK,				// тек. символ ленты != вершине стека, восстановлено состояние
 
-		ofstream fout("trace.txt", ofstream::app);
+		ofstream fout("SNT.txt", ofstream::app);
 		switch (rc_step)
 		{
 		case LENTA_END:			MFST_TRACE4("------>LENTA_END")

@@ -1,4 +1,5 @@
 ﻿#include "Analize.h"
+#include "Parm.h"
 #include "Check.h"
 #include <random>
 using namespace fst;
@@ -20,10 +21,10 @@ void LexAnalize(
 		" pow is foo(number is num, power is num) is num { result => 1; For(1, power, 1, i => { result = mult(result, number); }); return result;\}"},
 
 		{"symb_to_num",
-		"symb_to_num is foo(s is symb) is num{(s == '0') ?Truth{return 0;}(s == '1') ? Truth{return 1;}(s == '2') ?Truth{return 2;}(s == '3') ?Truth{return 3;}(s == '4') ?Truth{return 4;}(s == '5') ?Truth{return 5;}(s == '6') ?Truth{return 6;}(s == '7') ?Truth{return 7;}(s == '8') ?Truth{return 8;}(s == '9') ?Truth{return 9;}return s;}"},
+		"symb_to_num is foo(s is symb) is num {(s == '0') ?Truth{return 0;}(s == '1') ? Truth{return 1;}(s == '2') ?Truth{return 2;}(s == '3') ?Truth{return 3;}(s == '4') ?Truth{return 4;}(s == '5') ?Truth{return 5;}(s == '6') ?Truth{return 6;}(s == '7') ?Truth{return 7;}(s == '8') ?Truth{return 8;}(s == '9') ?Truth{return 9;}return s;}"},
 		
 		{"abs",
-		"abs is foo(number is num) is num{(number < 0) ? Truth { return mult(number, -1);}return number;}"},
+		"abs is foo(number is num) is num {(number < 0) ? Truth { return mult(number, -1);}return number;}"},
 		
 		{"round",
 		 "round is foo(a is float) is float { numa is num = a; (minus(a, numa) > .5) ? { return sum(numa, 1); } return numa; }"
@@ -36,6 +37,8 @@ void LexAnalize(
 	int line = 1;
 	char symb;
 	bool isComment = false;
+	bool usedNM = false;
+	srand(time(NULL));
 	
 	for (int i = 0; i < strlen(text); i++)
 	{
@@ -61,6 +64,20 @@ void LexAnalize(
 				continue;
 			}
 
+			if (word == "...")
+			{
+				words.push_back("main");
+				words.push_back("{");
+				word = "";
+				usedNM = true;
+			}
+			
+			else if (word == "$R")
+			{
+				int num = rand() % 1000000 * pow(2, rand() % 4);
+				word = to_string(num);
+			}
+			
 			if (isStopSymbol(symb))
 			{
 				if (
@@ -110,7 +127,14 @@ void LexAnalize(
 						{
 							word += '\\';
 						}
-						word += text[j];
+						if (text[j] == '\n')
+						{
+							word += "\\n";
+						}
+						else
+						{
+							word += text[j];
+						}
 						j++;
 						
 						if (j == strlen(text))
@@ -196,6 +220,7 @@ void LexAnalize(
 					)
 				{
 					word += symb;
+					
 					words.push_back(word);
 				}
 
@@ -228,6 +253,11 @@ void LexAnalize(
 	{
 		cout << i << endl;
 	}*/
+
+	if (usedNM)
+	{
+		words.push_back("}");
+	}
 
 	setLexemsAndIds(words, lextable, idtable);
 }
@@ -276,10 +306,6 @@ void setLexemsAndIds(
 		if (word == ":")
 		{
 			word = "Lie";
-		}
-		else if (word == "$R")
-		{
-			word = words[i] = to_string(rand() % 1000000 * pow(2, rand() % 4));
 		}
 		
 		if (word == "?")
@@ -956,7 +982,10 @@ void setLexemsAndIds(
 
 				if (lextable.size - 1 > 0 &&
 					lextable.table[lextable.size - 1].lexema != ',' &&
-					lextable.table[lextable.size - 1].lexema != '(')
+					lextable.table[lextable.size - 1].lexema != '(' &&
+					(
+						lextable.table[lextable.size - 1].lexema == '{' || lextable.table[lextable.size - 1].lexema == '}' || lextable.table[lextable.size - 1].lexema == ';')
+					)
 				{
 					changed = true;
 					lexe.lexema = 'c';
@@ -975,10 +1004,17 @@ void setLexemsAndIds(
 					LT::Add(lextable, lexe);
 					lexe.lexema = ')';
 					LT::Add(lextable, lexe);
-					lexe.lexema = ';';
-					LT::Add(lextable, lexe);
+					if (!nextIs(";", words, i + 1))
+					{
+						lexe.lexema = ';';
+						LT::Add(lextable, lexe);
 
-					ide->idxfirstLE = lextable.size - 7;
+						ide->idxfirstLE = lextable.size - 7;
+					}
+					else
+					{
+						ide->idxfirstLE = lextable.size - 6;
+					}
 				}
 			}
 			else
@@ -986,7 +1022,7 @@ void setLexemsAndIds(
 				ide->value.vsymb = word[1];
 			}
 
-			strcpy_s(ide->id, "literal.");
+			strcpy_s(ide->id, "literal");
 
 			IT::Add(idtable, *ide);
 			if (!changed)
@@ -1247,6 +1283,11 @@ void setLexemsAndIds(
 					throw ERROR_THROW_IN(617, line, -1);
 				}
 		
+				if (!ide->hasValue && ide->idtype != IT::P && ide->idtype != IT::F)
+				{
+					throw ERROR_THROW_IN(602, line, -1);
+				}
+
 				delete ide;
 			}
 			LT::Add(lextable, lexe);

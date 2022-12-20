@@ -12,7 +12,7 @@ namespace Log
 		std::ofstream* stream;
 	};
 
-	static const LOG INITLOG{ L"log.txt", NULL };
+	static const LOG INITLOG{ L"log.txt", nullptr };
 	LOG getlog(wchar_t logfile[]);
 	void WriteLine(LOG log, char* c, ...);
 	void WriteLine(LOG log, wchar_t* c, ...);

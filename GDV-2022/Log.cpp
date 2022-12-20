@@ -25,14 +25,17 @@ namespace Log
 	{
 		char** el = &c;
 		char* str = *el;
-		while (strlen(str) != 0)
+		if (log.stream != nullptr && log.stream->is_open())
 		{
-			el += 1;
-			*(log.stream) << str;
-			str = *el;
+			while (strlen(str) != 0)
+			{
+				el += 1;
+				*(log.stream) << str;
+				str = *el;
+			}
 		}
 	}
-	
+
 	void WriteLT(LOG log, LT::LexTable lextable)
 	{
 		*(log.stream) << "----" << " Код, разобранный на лексемы: " << "----" << std::endl;
@@ -42,18 +45,21 @@ namespace Log
 		}
 		*(log.stream) << "\n";
 	}
-	
+
 	void WriteLine(LOG log, wchar_t* c, ...)
 	{
 		wchar_t** el = &c;
 		wchar_t* wStr = *el;
 		char chStr[MAX_LEN_LINE];
-		while (wcslen(wStr) != 0)
+		if (log.stream != nullptr && log.stream->is_open())
 		{
-			wcstombs_s(0, chStr, wStr, MAX_LEN_LINE); // перевод из wchar_t в char
-			el += 1;
-			wStr = *el;
-			*(log.stream) << chStr;
+			while (wcslen(wStr) != 0)
+			{
+				wcstombs_s(0, chStr, wStr, MAX_LEN_LINE); // перевод из wchar_t в char
+				el += 1;
+				wStr = *el;
+				*(log.stream) << chStr;
+			}
 		}
 	}
 	void WriteLog(LOG log)
@@ -75,7 +81,7 @@ namespace Log
 
 		struct tm u;
 		char* f;
-		
+
 		const time_t timer = time(NULL);
 		localtime_s(&u, &timer);
 
@@ -89,7 +95,10 @@ namespace Log
 		head += check(day) + "." + check(month + 1) + "." + "20" + std::to_string(year % 100) + " " +
 			check(hour) + ":" + check(minute) + ":" + check(second) + " --------\n";
 
-		*(log.stream) << head;
+		if (log.stream != nullptr && log.stream->is_open())
+		{
+			*(log.stream) << head;
+		}
 	}
 	void WriteParm(LOG log, Parm::PARM parm)
 	{
@@ -102,21 +111,27 @@ namespace Log
 		wcstombs_s(0, Log, parm.log, PARM_MAX_SIZE);
 
 		string head = "---- Параметры --------------\n";
-		*(log.stream) << PARM_IN << "\t" << in << endl
-			<< PARM_OUT << "\t" << out << endl
-			<< PARM_LOG << "\t" << Log << endl;
+		if (log.stream != nullptr && log.stream->is_open())
+		{
+			*(log.stream) << PARM_IN << "\t" << in << endl
+				<< PARM_OUT << "\t" << out << endl
+				<< PARM_LOG << "\t" << Log << endl;
+		}
 	}
 	void WriteIn(LOG log, In::IN in)
 	{
 		string head = "---- Исходные данные --------\n";
-		*(log.stream) << head <<
-			"Количество символов:\t" << in.size << endl <<
-			"Проигнорировано:\t\t" << in.ignore << endl <<
-			"Количество строк:\t\t" << in.lines << endl;
+		if (log.stream != nullptr && log.stream->is_open())
+		{
+			*(log.stream) << head <<
+				"Количество символов:\t" << in.size << endl <<
+				"Проигнорировано:\t\t" << in.ignore << endl <<
+				"Количество строк:\t\t" << in.lines << endl;
+		}
 	}
 	void WriteError(LOG log, Error::ERROR e)
 	{
-		if (log.stream->is_open())
+		if (log.stream != nullptr && log.stream->is_open())
 		{
 			if (e.inext.line != -1)
 			{
@@ -136,7 +151,7 @@ namespace Log
 	}
 	void Close(LOG log)
 	{
-		if (log.stream->is_open())
+		if (log.stream != nullptr && log.stream->is_open())
 		{
 			log.stream->close();
 		}

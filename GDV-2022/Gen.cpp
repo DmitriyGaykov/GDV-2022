@@ -297,7 +297,7 @@ namespace GEN
 				{
 					if (!isConsole)
 					{
-						throw ERROR_THROW_IN(622, lextable.table[i].sn, -1);
+						throw ERROR_THROW_IN(623, lextable.table[i].sn, -1);
 					}
 					fout << '"' << edi->value.vstr << '"';
 				}

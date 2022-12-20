@@ -1,26 +1,55 @@
-dasha is foo(a is ref float) is action
+#include <iostream>
+#include <windows.h>
+
+#pragma comment(lib, "C:\\Users\\dimag\\OneDrive\\Рабочий стол\\Курсач КПО\\GDV-2022\\Debug\\LIB.lib")
+#include "C:\\Users\\dimag\\OneDrive\\Рабочий стол\\Курсач КПО\\LIB\\framework.h"
+
+
+int Fact_$(int a_Fact_$)
 {
-	(a > 2) ?
-	Truth
+	int res_Fact_$ = 1; 
+	For((int)1, (int)a_Fact_$, 1, [&](int el_$For1_Fact_$)
 	{
-		a = 2;
-	}
+		res_Fact_$ = mult((int)res_Fact_$, (int)el_$For1_Fact_$); 
+		
 	
-	(a == 23) ?
-	Truth
-	{
-		a = sum(23, 1);
-	}
-
-	console(`A теперь имеет значение: `, a);
+		return false;
+	}); 
+	return (int)(res_Fact_$); 
+	
 }
-
-main
+int main()
 {
-	a => 2.232;
+	SetConsoleCP(1251);
+	SetConsoleOutputCP(1251);
 
-	dasha(a);
+	int a_$l1_main_$ = Fact_$((int)3); 
+	int b_$l1_main_$ = 5228 & (int)2.3; 
+	if (a_$l1_main_$ == 6)
+	{
+		std::cout << "a равно 6"; 
+		std::cout << '\n'; 
+		
+	}
+	else	
+	{
+		std::cout << "a не равно 6"; 
+		std::cout << '\n'; 
+		
+	}
+	auto round_$l1_main_$ = [&](float a_round_$l1_main_$)
+	{
+		int numa_round_$l1_main_$ = a_round_$l1_main_$; 
+		if (minus((float)a_round_$l1_main_$, (float)numa_round_$l1_main_$) > 0.5)
+		{
+			return (float)(sum((int)numa_round_$l1_main_$, (int)1)); 
+			
+		}
+		return (float)(numa_round_$l1_main_$); 
+		
+	}; 
+	float half_$l1_main_$ = round_$l1_main_$((float)78.67); 
+	std::cout << "half = " << half_$l1_main_$; 
+	return (int)(0); 
 	
-	return 0;
 }
-

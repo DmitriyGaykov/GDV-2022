@@ -58,15 +58,9 @@ namespace In
 		IN in;
 		in.size = 0;
 		std::fstream file;
-		try
-		{
-			file.open(infile, std::fstream::in);
-		}
-		catch (...)
-		{
-			throw ERROR_THROW(110);
-		}
-
+	
+		file.open(infile, std::fstream::in);
+		
 		if (!file.is_open())
 		{
 			throw ERROR_THROW(110);

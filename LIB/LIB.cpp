@@ -6,7 +6,21 @@
 
 int sum(int a, int b)
 {
-	return a + b;
+	int result = 0;
+
+	__asm
+	{
+		push a;
+		push b;
+		pop eax;
+		pop ebx;
+
+		add eax, ebx;
+
+		mov result, eax;
+	}
+
+	return result;
 }
 
 float sum(float a, float b)
@@ -16,7 +30,21 @@ float sum(float a, float b)
 
 int minus(int a, int b)
 {
-	return a - b;
+	int result;
+
+	__asm
+	{
+		push b;
+		push a;
+		pop eax;
+		pop ebx;
+
+		sub eax, ebx;
+
+		mov result, eax;
+	}
+	
+	return result;
 }
 
 float minus(float a, float b)
@@ -26,7 +54,21 @@ float minus(float a, float b)
 
 int mult(int a, int b)
 {
-	return a * b;
+	int result;
+
+	__asm
+	{
+		push b;
+		push a;
+		pop eax;
+		pop ebx;
+
+		imul eax, ebx;
+
+		mov result, eax;
+	}
+
+	return result;
 }
 
 float mult(float a, float b)
@@ -36,7 +78,36 @@ float mult(float a, float b)
 
 int division(int a, int b)
 {
-	return (b == 0 ? INT_MAX : a / b);
+	int result;
+
+	__asm
+	{
+		push b;
+		push a;
+		pop eax;
+		pop ebx;
+
+		push 0;
+		pop edi;
+		
+		cmp b, edi;
+		je isNull;
+
+		idiv ebx;
+		mov result, eax;
+		jmp end;
+
+	isNull:
+		push INT_MAX;
+		pop eax;
+		
+		mov result, eax;
+
+	end:
+		
+	}
+	
+	return result;
 }
 
 float division(float a, float b)

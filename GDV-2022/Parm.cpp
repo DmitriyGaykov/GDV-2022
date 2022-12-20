@@ -34,7 +34,7 @@ namespace Parm
 
 		for (short i = 0; i < cnt; i++)
 		{
-			if (regex_match(args[i], args[i] + strlen(args[i]), regex("-in:([^-])*.txt")))
+			if (regex_match(args[i], args[i] + strlen(args[i]), regex("-in:([^-])*.txt")) || regex_match(args[i], args[i] + strlen(args[i]), regex("-in:([^-])*.gdv")))
 			{
 				isIN = true;
 				translate(args[i], p.in, 4);
@@ -50,7 +50,10 @@ namespace Parm
 				translate(args[i], p.log, 5);
 			}
 		}
-
+		if (!isIN)
+		{
+			throw ERROR_THROW(100);
+		}
 		if (!isOUT)
 		{
 			wcscpy_s(p.out, p.in);
@@ -66,8 +69,8 @@ namespace Parm
 				delete[] args[i];
 			}
 			delete[] args;
-			return p;
 		}
+		return p;
 	}
 }
 

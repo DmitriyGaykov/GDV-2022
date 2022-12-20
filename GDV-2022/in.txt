@@ -2,8 +2,7 @@ Fact is foo(a is num) is num
 {
     res => 1;
 	
-	For(1, a, 1, el => 
-	{
+	For(1, a, 1, el => {
         res = mult(res, el);
     });
 
@@ -12,17 +11,18 @@ Fact is foo(a is num) is num
 
 main
 {
-    a => Fact(3);
+	a => Fact(3);
+	
 	(a == 6) ? 
 	{
-		console(`a равно 6`);
+		`a равно 6`
 	} : {
-		console(`a не равно 6`);
+		`a не равно 6`
 	}
-
-	`\nПодключение функции`
+	
 	@import round;
-
-	half is float;
-	half = .5 & 1;
+	
+	half is float = round(78.67);
+	
+	console(`rounded half = `, half);
 }

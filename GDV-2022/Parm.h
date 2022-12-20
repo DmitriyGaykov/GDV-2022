@@ -21,3 +21,4 @@ namespace Parm
 
 	PARM getparm(int argc, _TCHAR* argv[]); // сформировать struct PARM на сонове параметров функции main
 }
+

@@ -25,10 +25,12 @@ int main(int argc, _TCHAR* argv[])
 		Log::WriteParm(log, parm); // запись процесса проверки параметров
 
 		Log::WriteLT(log, lextable); // запись таблицы лексем
+		Log::WriteLine(log, (char*)"Таблица лексем:						LT.txt\n", (char*)"");
+		Log::WriteLine(log, (char*)"Таблица идентификаторов:			IT.txt\n", (char*)"");
 		LT::Output(lextable);
 		IT::Output(idtable);
 		
-		ofstream fout("trace.txt");
+		ofstream fout("SNT.txt");
 		
 		MFST_TRACE_START
 
@@ -38,20 +40,24 @@ int main(int argc, _TCHAR* argv[])
 			bool resultSint = mfst.start();
 		mfst.savededucation();
 		
-		fout.open("trace.txt", ios::app);
+		fout.open("SNT.txt", ios::app);
 		mfst.printrules(fout);
 		fout.close();
+		
 		
 		if (!resultSint)
 		{
 			throw ERROR_THROW(121);
 		}
+		Log::WriteLine(log, (char*)"Результат синтаксического анализа:  SNT.txt\n", (char*)"");
 		
 		checkSemantic(lextable, idtable);
 
 		GEN::Generate(lextable, idtable, parm);
 
 		GEN::Run(parm);
+
+		Log::WriteLine(log, (char*)"--------- Трансляция в С++ прошла успешно ---------\n", (char*)"");
 
 		Log::Close(log); // закрытие лога
 	}
@@ -67,6 +73,7 @@ int main(int argc, _TCHAR* argv[])
 			}
 		}
 		Log::WriteError(log, e); // запись ошибки в лог
+		Log::WriteLine(log, (char*)"\n--------- Трансляция в С++ прошла неуспешно ---------\n", (char*)"");
 		Log::Close(log); // закрытие лога
 	}
 	return 0;

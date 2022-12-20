@@ -36,7 +36,7 @@ GRB::Greibach greibach(
 	22, // edit
 
 	Rule(NS(GLOBAL), GRB_ERROR_SERIES + 0, // глобальное пространство
-		14,
+		12,
 
 		Rule::Chain(3, TS('i'), NS(INIT_FUNC), NS(GLOBAL)),
 		Rule::Chain(2, TS('i'), NS(INIT_FUNC)),
@@ -49,9 +49,6 @@ GRB::Greibach greibach(
 
 		Rule::Chain(4, TS('i'), NS(DEF_TYPE), NS(SEMICOLON), NS(GLOBAL)),
 		Rule::Chain(3, TS('i'), NS(DEF_TYPE), NS(SEMICOLON)),
-
-		Rule::Chain(5, TS('i'), TS('='), NS(EXPR), NS(SEMICOLON), NS(GLOBAL)),
-		Rule::Chain(4, TS('i'), TS('='), NS(EXPR), NS(SEMICOLON)),
 
 		Rule::Chain(5, TS('m'), TS('{'), NS(BODY_FUNC), TS('}'), NS(GLOBAL)),
 		Rule::Chain(4, TS('m'), TS('{'), NS(BODY_FUNC), TS('}')),

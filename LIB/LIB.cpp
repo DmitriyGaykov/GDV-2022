@@ -102,7 +102,7 @@ int division(int a, int b)
 		pop eax;
 		
 		mov result, eax;
-
+.
 	end:
 		
 	}

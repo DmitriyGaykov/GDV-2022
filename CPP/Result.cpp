@@ -35,6 +35,10 @@ int main()
 		std::cout << "a не равно 6"; 
 		std::cout << '\n'; 
 		
+	}	
+	{
+		return (int)(0); 
+		
 	}
 	auto round_$l1_main_$ = [&](float a_round_$l1_main_$)
 	{

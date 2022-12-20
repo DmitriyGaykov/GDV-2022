@@ -36,10 +36,10 @@ sum                                   | float             | функция             
 numa.round.$l1.main.$                 | num               | переменная             | 117                         | Не определено
 literal                               | num               | литерал                | 119                         | 1
 numa.round.$l1.main.$                 | num               | переменная             | 124                         | Не определено
-half.$l1.main.$                       | float             | переменная             | 128                         | Не определено
-round.$l1.main.$                      | float             | функция                | 132                         | Не определено
-literal                               | float             | литерал                | 134                         | 78,669998
-literal                               | string            | литерал                | 139                         | rounded half = 
-half.$l1.main.$                       | float             | переменная             | 141                         | Не определено
-literal                               | num               | литерал                | 145                         | 0
+half.$l1.main.$                       | float             | переменная             | 129                         | Не определено
+round.$l1.main.$                      | float             | функция                | 133                         | Не определено
+literal                               | float             | литерал                | 135                         | 78,669998
+literal                               | string            | литерал                | 140                         | rounded half = 
+half.$l1.main.$                       | float             | переменная             | 142                         | Не определено
+literal                               | num               | литерал                | 146                         | 0
 

@@ -180,7 +180,7 @@ GRB::Greibach greibach(
 	),
 
 	Rule(NS(BODY_FUNC), GRB_ERROR_SERIES + 6, // тело функции
-		22,
+		24,
 		
 		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), NS(RIGHTSCOPE), NS(SEMICOLON), NS(BODY_FUNC)),
 		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), NS(RIGHTSCOPE), NS(SEMICOLON), NS(RETURN)),
@@ -213,7 +213,10 @@ GRB::Greibach greibach(
 		Rule::Chain(8, TS('('), NS(TYPES_VALUES), TS('V'), NS(TYPES_VALUES), NS(RIGHTSCOPE), TS('?'), NS(IFBODY), NS(RETURN)),
 
 		Rule::Chain(4, TS('i'), NS(INIT_FUNC), NS(SEMICOLON), NS(BODY_FUNC)),
-		Rule::Chain(4, TS('i'), NS(INIT_FUNC), NS(SEMICOLON), NS(RETURN))
+		Rule::Chain(4, TS('i'), NS(INIT_FUNC), NS(SEMICOLON), NS(RETURN)),
+		
+		Rule::Chain(4, TS('r'), NS(EXPR), NS(SEMICOLON), NS(BODY_FUNC)),
+		Rule::Chain(3, TS('r'), NS(EXPR), NS(SEMICOLON))
 	),
 	
 	Rule(NS(INIT), GRB_ERROR_SERIES + 7, // инициализация переменных
@@ -222,7 +225,7 @@ GRB::Greibach greibach(
 	),
 	
 	Rule(NS(IF), GRB_ERROR_SERIES + 8, // условие
-		36,
+		38,
 		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), NS(RIGHTSCOPE), NS(SEMICOLON), NS(RETURN)),
 		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), NS(RIGHTSCOPE), NS(SEMICOLON), NS(IF)),
 		Rule::Chain(5, TS('i'), TS('('), NS(ARGS_CFUNC), NS(RIGHTSCOPE), NS(SEMICOLON)),
@@ -246,6 +249,7 @@ GRB::Greibach greibach(
 		Rule::Chain(4, TS('{'), NS(IF), TS('}'), NS(IF)),
 		Rule::Chain(4, TS('{'), NS(IF), TS('}'), NS(RETURN)),
 		Rule::Chain(3, TS('{'), NS(IF), TS('}')),
+		
 		Rule::Chain(2, TS('{'), TS('}')),
 		Rule::Chain(3, TS('{'), TS('}'), NS(IF)),
 		Rule::Chain(3, TS('{'), TS('}'), NS(RETURN)),
@@ -264,6 +268,9 @@ GRB::Greibach greibach(
 	
 		Rule::Chain(3, TS('r'), NS(EXPR), NS(SEMICOLON)),
 		Rule::Chain(2, TS('r'), NS(SEMICOLON)),
+
+		Rule::Chain(4, TS('r'), NS(EXPR), NS(SEMICOLON), NS(IF)),
+		Rule::Chain(3, TS('r'), NS(SEMICOLON), NS(IF)),
 		
 		Rule::Chain(2, TS('b'), NS(SEMICOLON)),
 		Rule::Chain(3, TS('b'), NS(SEMICOLON), NS(IF)),
@@ -306,8 +313,8 @@ GRB::Greibach greibach(
 		Rule::Chain(2, TS('('), NS(RIGHTSCOPE))
 	),
 	
-	Rule(NS(VISAREA), GRB_ERROR_SERIES + 13, // тело функции
-		36,
+	Rule(NS(VISAREA), GRB_ERROR_SERIES + 13, 
+		38,
 		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), NS(RIGHTSCOPE), NS(SEMICOLON), NS(VISAREA)),
 		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), NS(RIGHTSCOPE), NS(SEMICOLON), NS(RETURN)),
 		Rule::Chain(5, TS('i'), TS('('), NS(ARGS_CFUNC), NS(RIGHTSCOPE), NS(SEMICOLON)),
@@ -351,6 +358,9 @@ GRB::Greibach greibach(
 		Rule::Chain(2, TS('b'), NS(SEMICOLON)),
 		Rule::Chain(3, TS('b'), NS(SEMICOLON), NS(VISAREA)),
 	
+		Rule::Chain(4, TS('r'), NS(EXPR), NS(SEMICOLON), NS(VISAREA)),
+		Rule::Chain(3, TS('r'), NS(SEMICOLON), NS(VISAREA)),
+
 		Rule::Chain(3, TS('r'), NS(EXPR), NS(SEMICOLON)),
 		Rule::Chain(2, TS('r'), NS(SEMICOLON)),
 		
@@ -365,7 +375,6 @@ GRB::Greibach greibach(
 	
 	Rule(NS(FOR_BODY), GRB_ERROR_SERIES + 15, // Ошибка в теле цикла For
 		26,
-
 		Rule::Chain(6, TS('i'), TS('('), NS(ARGS_CFUNC), NS(RIGHTSCOPE), NS(SEMICOLON), NS(FOR_BODY)),
 		Rule::Chain(5, TS('i'), TS('('), NS(ARGS_CFUNC), NS(RIGHTSCOPE), NS(SEMICOLON)),
 
@@ -401,10 +410,9 @@ GRB::Greibach greibach(
 		Rule::Chain(2, TS('b'), NS(SEMICOLON)),
 		Rule::Chain(3, TS('b'), NS(SEMICOLON), NS(FOR_BODY)),
 
-		Rule::Chain(2, TS(SKIP), NS(SEMICOLON),
+		Rule::Chain(2, TS(SKIP), NS(SEMICOLON)),
 		Rule::Chain(3, TS(SKIP), NS(SEMICOLON), NS(FOR_BODY))
 		)
-	)
 	);
 	
 	Rule::Chain::Chain(short psize, GRBALPHABET s, ...)	///I?aano. oaii?ee (i?aaay noi?iia i?aaeea)

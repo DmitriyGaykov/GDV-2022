@@ -1,7 +1,7 @@
 Fact is foo(a is num) is num
 {
     res => 1;
-	
+
 	For(1, a, 1, el => {
         res = mult(res, el);
     });
@@ -19,10 +19,17 @@ main
 	} : {
 		`a не равно 6`
 	}
-	
+
 	@import round;
 	
 	half is float = round(78.67);
 	
 	console(`rounded half = `, half);
 }
+
+* $R рандомной число
+* ... - запись без main
+* (a == b) : {}
+* строковый литерал с возможность перехода на другую строку
+* '\n' , '\t', ''', '\', `"`
+* break skip

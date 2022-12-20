@@ -38,6 +38,7 @@ void LexAnalize(
 	char symb;
 	bool isComment = false;
 	bool usedNM = false;
+	
 	srand(time(NULL));
 	
 	for (int i = 0; i < strlen(text); i++)
@@ -249,11 +250,6 @@ void LexAnalize(
 		}
 	}
 
-	/*for (auto i : words)
-	{
-		cout << i << endl;
-	}*/
-
 	if (usedNM)
 	{
 		words.push_back("}");
@@ -314,6 +310,16 @@ void setLexemsAndIds(
 			{
 				words.insert(words.begin() + i + 1, "Truth");
 			}
+		}
+		
+		if (word == "Lie" && lextable.table[lextable.size - 1].lexema == ')')
+		{
+			lexe.idxTI = -1;
+			lexe.lexema = '?';
+			lexe.sn = line;
+			lexe.view = '?';
+
+			LT::Add(lextable, lexe);
 		}
 
 		if (
@@ -719,6 +725,11 @@ void setLexemsAndIds(
 				isAction = true;
 				countActionScopes = 0;
 			}
+
+			if (isFor.top())
+			{
+				throw ERROR_THROW_IN(633, line, -1);
+			}
 			
 			delete ide;
 		}
@@ -888,6 +899,11 @@ void setLexemsAndIds(
 			else if (nextIs(";", words, i + 1))
 			{
 				throw ERROR_THROW_IN(631, line, -1);
+			}
+
+			if (isFor.top())
+			{
+				throw ERROR_THROW_IN(634, line, -1);
 			}
 		}
 
